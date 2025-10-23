@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -43,5 +43,152 @@
         <div class="signature">CALCULATOR DESIGNED BY PARTH PATEL</div>
     </div>
     <script src="script.js"></script>
+</body>
+</html> -->
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Parth Patel | Software Engineer</title>
+	<meta name="description" content="Portfolio landing page for Parth Patel, Software Engineer." />
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+	<header class="site-header">
+		<nav class="nav">
+			<a href="#" class="logo" aria-label="Parth Patel home">PP</a>
+			<button class="nav-toggle" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle navigation">
+				<span class="bar"></span>
+				<span class="bar"></span>
+				<span class="bar"></span>
+			</button>
+			<ul id="navMenu" class="nav-menu">
+				<li><a href="#about">About</a></li>
+				<li><a href="#projects">Projects</a></li>
+				<li><a href="#skills">Skills</a></li>
+				<!-- <li><a href="#contact">Contact</a></li> -->
+			</ul>
+		</nav>
+	</header>
+
+	<main>
+		<section class="hero" id="home">
+			<div class="hero-inner">
+				<h1>Parth Patel</h1>
+				<p class="subtitle">Software Engineer</p>
+				<p class="tagline">I build reliable, human friendly software. Portfolio is coming soon.</p>
+				<div class="cta">
+					<a class="btn primary" href="#projects">See Projects</a>
+					<!-- <a class="btn" href="#contact">Get In Touch</a> -->
+				</div>
+			</div>
+		</section>
+
+		<section class="section" id="about">
+			<div class="container">
+				<h2>About</h2>
+				<p>
+					Hi, I am Parth, a software engineer who enjoys turning ideas into practical products.
+					I focus on clean code, simple user experience, and careful performance.
+				</p>
+				<p>
+					This site will showcase my work. I am currently preparing a few projects. In the meantime, feel free to <a href="mailto:parthpatel.c34@gmail.com" aria-label="Email">reach out.</a>
+				</p>
+			</div>
+		</section>
+
+		<section class="section" id="projects">
+			<div class="container">
+				<h2>Projects</h2>
+
+				<div class="empty-state">
+					<div class="empty-card">
+						<div class="empty-icon" aria-hidden="true">🧩</div>
+						<h3>Nothing here yet</h3>
+						<p>
+							Projects are on the way. Check back soon or send me a message if you would like to collaborate.
+						</p>
+						<div class="hint">
+							<!-- <code>// script.js can programmatically add projects when ready</code> -->
+						</div>
+					</div>
+				</div>
+
+				<div class="grid" id="projectGrid" aria-live="polite" aria-busy="false">
+					<!-- JS can inject project cards here later -->
+				</div>
+			</div>
+		</section>
+
+		<section class="section" id="skills">
+			<div class="container">
+				<h2>Skills</h2>
+				<ul class="pill-list">
+                    <li>Spring Boot</li>
+					<li>React</li>
+					<li>Angular</li>
+					<li>JavaScript</li>
+					<li>TypeScript</li>
+					<li>Node</li>
+					<li>HTML</li>
+					<li>CSS</li>
+					<li>SQL</li>
+					<li>Git</li>
+					<li>Testing</li>
+					<li>APIs</li>
+				</ul>
+			</div>
+		</section>
+
+		<!-- <section class="section" id="contact">
+			<div class="container">
+				<h2>Contact</h2>
+				<form id="contactForm" class="card" novalidate>
+					<div class="field">
+						<label for="name">Name</label>
+						<input id="name" name="name" type="text" autocomplete="name" required />
+						<small class="error" id="nameError" role="alert"></small>
+					</div>
+					<div class="field">
+						<label for="email">Email</label>
+						<input id="email" name="email" type="email" autocomplete="email" required />
+						<small class="error" id="emailError" role="alert"></small>
+					</div>
+					<div class="field">
+						<label for="message">Message</label>
+						<textarea id="message" name="message" rows="5" required></textarea>
+						<small class="error" id="messageError" role="alert"></small>
+					</div>
+					<div class="actions">
+						<button class="btn primary" type="submit">Send</button>
+						<button class="btn" type="reset">Clear</button>
+					</div>
+					<p class="form-note">
+						This form is a demo. It will not send an email, but it will show a success message.
+					</p>
+				</form>
+			</div>
+		</section>
+	</main> -->
+
+	<footer class="site-footer">
+		<div class="container footer-inner">
+			<p>&copy; <span id="year"></span> Parth Patel</p>
+			<ul class="social">
+				<li><a href="#" aria-label="GitHub">GitHub</a></li>
+				<li><a href="#" aria-label="LinkedIn">LinkedIn</a></li>
+				<li><a href="mailto:parthpatel.c34@gmail.com" aria-label="Email">Email</a></li>
+			</ul>
+		</div>
+	</footer>
+
+	<script src="script.js"></script>
 </body>
 </html>
