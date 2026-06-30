@@ -1,141 +1,1181 @@
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Parth Patel | Software Engineer</title>
-	<meta name="description" content="Portfolio landing page for Parth Patel, Software Engineer." />
-	<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Akṣara — Live Multi-Script Transliterator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+Devanagari:wght@400;600&family=Noto+Serif+Gujarati:wght@400;600&family=Noto+Serif+Telugu:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
 </head>
+
+<style>
+  :root {
+    --ink: #15100a;
+    --panel: #211810;
+    --panel-soft: #2a1f15;
+    --line: rgba(244, 233, 209, 0.12);
+    --line-bright: rgba(244, 233, 209, 0.22);
+    --paper: #f3e8cf;
+    --paper-dim: #b9a98a;
+    --marigold: #e3a83f;
+    --peacock: #379081;
+    --vermilion: #c14b35;
+    --indigo: #7686c2;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Inter', sans-serif;
+  }
+
+  body {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  ::selection { background: var(--marigold); color: var(--ink); }
+
+  .top-stripe {
+    height: 4px;
+    flex-shrink: 0;
+    background: linear-gradient(90deg, var(--marigold), var(--peacock), var(--vermilion), var(--indigo));
+  }
+
+  .page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 18px 22px;
+    gap: 14px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+
+  .brand h1 {
+    margin: 0;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(22px, 3vw, 30px);
+    letter-spacing: 0.01em;
+    color: var(--paper);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .brand-mark {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--marigold);
+    letter-spacing: 0.18em;
+  }
+
+  .tagline {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--paper-dim);
+  }
+
+  .legend-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--marigold);
+    background: transparent;
+    border: 1px solid var(--marigold);
+    border-radius: 999px;
+    padding: 9px 18px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .legend-btn:hover,
+  .legend-btn:focus-visible {
+    background: var(--marigold);
+    color: var(--ink);
+  }
+
+  .legend-btn:focus-visible { outline: 2px solid var(--paper); outline-offset: 2px; }
+
+  .workspace {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .input-section {
+    flex: 0 0 26%;
+    display: flex;
+    flex-direction: column;
+    min-height: 90px;
+  }
+
+  .field-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--paper-dim);
+    margin-bottom: 6px;
+  }
+
+  .text-input {
+    flex: 1;
+    width: 100%;
+    resize: none;
+    background: var(--panel);
+    color: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    line-height: 1.5;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .text-input::placeholder { color: var(--paper-dim); opacity: 0.7; }
+
+  .text-input:focus {
+    outline: none;
+    border-color: var(--marigold);
+    box-shadow: 0 0 0 3px rgba(227, 168, 63, 0.18);
+  }
+
+  .output-grid {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: calc((100% - 14px) * var(--col-a-frac, 0.5)) 14px calc((100% - 14px) * var(--col-b-frac, 0.5));
+    grid-template-rows: calc((100% - 14px) * var(--row-a-frac, 0.5)) 14px calc((100% - 14px) * var(--row-b-frac, 0.5));
+  }
+
+  .card-deva { grid-column: 1; grid-row: 1; }
+  .card-guj  { grid-column: 3; grid-row: 1; }
+  .card-tel  { grid-column: 1; grid-row: 3; }
+  .card-iast { grid-column: 3; grid-row: 3; }
+
+  .v-gutter,
+  .h-gutter {
+    position: relative;
+    background: transparent;
+    touch-action: none;
+  }
+
+  .v-gutter {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    cursor: col-resize;
+    z-index: 2;
+  }
+
+  .h-gutter {
+    grid-column: 1 / 4;
+    grid-row: 2;
+    cursor: row-resize;
+    z-index: 1;
+  }
+
+  .v-gutter::before,
+  .h-gutter::before {
+    content: "";
+    position: absolute;
+    background: var(--line);
+    transition: background 0.15s ease;
+  }
+
+  .v-gutter::before { top: 0; bottom: 0; left: 6px; width: 2px; }
+  .h-gutter::before { left: 0; right: 0; top: 6px; height: 2px; }
+
+  .v-gutter::after,
+  .h-gutter::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 999px;
+    background: var(--paper-dim);
+  }
+
+  .v-gutter::after { width: 4px; height: 18px; transform: translate(-50%, -50%); }
+  .h-gutter::after { width: 18px; height: 4px; transform: translate(-50%, -50%); }
+
+  .v-gutter:hover::before,
+  .v-gutter.dragging::before,
+  .h-gutter:hover::before,
+  .h-gutter.dragging::before { background: var(--marigold); }
+
+  .v-gutter:hover::after,
+  .v-gutter.dragging::after,
+  .h-gutter:hover::after,
+  .h-gutter.dragging::after { background: var(--marigold); }
+
+  .v-gutter:focus-visible,
+  .h-gutter:focus-visible { outline: 2px solid var(--marigold); outline-offset: -2px; }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--card-accent, var(--marigold));
+    border-radius: 12px;
+    padding: 12px 14px 14px;
+  }
+
+  .card-deva { --card-accent: var(--marigold); }
+  .card-guj  { --card-accent: var(--peacock); }
+  .card-tel  { --card-accent: var(--vermilion); }
+  .card-iast { --card-accent: var(--indigo); }
+
+  .card-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 8px;
+    min-width: 0;
+  }
+
+  .script-name,
+  .script-native {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .script-name {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--paper-dim);
+  }
+
+  .script-native {
+    font-size: 14px;
+    color: var(--card-accent, var(--marigold));
+  }
+
+  .output-text {
+    flex: 1;
+    width: 100%;
+    resize: none;
+    background: transparent;
+    color: var(--paper);
+    border: none;
+    padding: 0;
+    font-size: 21px;
+    line-height: 1.6;
+  }
+
+  .output-text:focus { outline: none; }
+
+  .font-deva { font-family: 'Noto Serif Devanagari', serif; }
+  .font-guj  { font-family: 'Noto Serif Gujarati', serif; }
+  .font-tel  { font-family: 'Noto Serif Telugu', serif; }
+  .font-iast { font-family: 'JetBrains Mono', monospace; font-size: 18px; }
+
+  /* Typing guide dialog */
+  dialog#legend {
+    background: var(--panel-soft);
+    color: var(--paper);
+    border: 1px solid var(--line-bright);
+    border-radius: 14px;
+    padding: 0;
+    width: clamp(320px, 92vw, 760px);
+    max-height: 82vh;
+  }
+
+  dialog#legend::backdrop { background: rgba(10, 7, 4, 0.65); }
+
+  .legend-inner { padding: 22px 26px 26px; overflow-y: auto; max-height: 82vh; }
+
+  .legend-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .legend-head h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 20px;
+    margin: 0;
+  }
+
+  .legend-close {
+    background: transparent;
+    border: 1px solid var(--line-bright);
+    color: var(--paper);
+    border-radius: 999px;
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .legend-close:hover { border-color: var(--marigold); color: var(--marigold); }
+
+  .legend-note {
+    color: var(--paper-dim);
+    font-size: 13px;
+    margin: 4px 0 18px;
+  }
+
+  .legend-section + .legend-section { margin-top: 18px; }
+
+  .legend-section h3 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--marigold);
+    margin: 0 0 10px;
+  }
+
+  .key-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 6px 14px;
+    font-size: 13.5px;
+  }
+
+  .key-grid div { display: flex; justify-content: space-between; gap: 8px; }
+
+  .key {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--paper);
+    background: var(--panel);
+    border-radius: 5px;
+    padding: 1px 6px;
+  }
+
+  .arrow { color: var(--paper-dim); }
+
+  .glyph { font-family: 'Noto Sans Devanagari', sans-serif; }
+
+  @media (max-width: 560px) {
+    html, body { overflow: auto; height: auto; }
+    body { display: block; }
+    .page { padding: 16px; }
+    .input-section { flex-basis: auto; min-height: 140px; }
+    .output-grid { grid-template-columns: 1fr; grid-template-rows: none; display: flex; flex-direction: column; gap: 14px; }
+    .v-gutter, .h-gutter { display: none; }
+    .card { min-height: 160px; }
+  }
+</style>
+
 <body>
-	<header class="site-header">
-		<nav class="nav">
-			<a href="#" class="logo" aria-label="Parth Patel home">PP</a>
-			<button class="nav-toggle" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle navigation">
-				<span class="bar"></span>
-				<span class="bar"></span>
-				<span class="bar"></span>
-			</button>
-			<ul id="navMenu" class="nav-menu">
-				<li><a href="#about">About</a></li>
-				<li><a href="#projects">Projects</a></li>
-				<li><a href="#skills">Skills</a></li>
-				<!-- <li><a href="#contact">Contact</a></li> -->
-			</ul>
-		</nav>
-	</header>
 
-	<main>
-		<section class="hero" id="home">
-			<div class="hero-inner">
-				<h1>Parth Patel</h1>
-				<p class="subtitle">Software Engineer</p>
-				<p class="tagline">I build reliable, human friendly software. Portfolio is coming soon.</p>
-				<div class="cta">
-					<a class="btn primary" href="#projects">See Projects</a>
-					<!-- <a class="btn" href="#contact">Get In Touch</a> -->
-				</div>
-			</div>
-		</section>
+  <div class="top-stripe"></div>
 
-		<section class="section" id="about">
-			<div class="container">
-				<h2>About</h2>
-				<p>
-					Hi, I am Parth, a software engineer who enjoys turning ideas into practical products.
-					I focus on clean code, simple user experience, and careful performance.
-				</p>
-				<p>
-					This site will showcase my work. I am currently preparing a few projects. In the meantime, feel free to reach out.
-				</p>
-			</div>
-		</section>
+  <div class="page">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Akṣara <span class="brand-mark">अ · ગુ · తె</span></h1>
+        <p class="tagline">type the romanized scheme below, watch it become four scripts live</p>
+      </div>
+      <button class="legend-btn" onclick="document.getElementById('legend').showModal()">Typing guide</button>
+    </header>
 
-		<section class="section" id="projects">
-			<div class="container">
-				<h2>Projects</h2>
+    <div class="workspace">
+      <section class="input-section">
+        <div class="field-label">Romanized input</div>
+        <textarea class="text-input" id="TransInput" placeholder="rAmAyaNa, kRSNa, namaste, dharma..." onInput="toDevanagari(); toGujarati(); toIAST(); toTelugu();"></textarea>
+      </section>
 
-				<div class="empty-state">
-					<div class="empty-card">
-						<div class="empty-icon" aria-hidden="true">🧩</div>
-						<h3>Nothing here yet</h3>
-						<p>
-							Projects are on the way. Check back soon or send me a message if you would like to collaborate.
-						</p>
-						<div class="hint">
-							<!-- <code>// script.js can programmatically add projects when ready</code> -->
-						</div>
-					</div>
-				</div>
+      <section class="output-grid">
+        <div class="card card-deva">
+          <div class="card-label">
+            <span class="script-name">Devanagari</span>
+            <span class="script-native font-deva">देवनागरी</span>
+          </div>
+          <textarea class="output-text font-deva" id="TransDevan" placeholder="देवनागरी" readonly></textarea>
+        </div>
 
-				<div class="grid" id="projectGrid" aria-live="polite" aria-busy="false">
-					<!-- JS can inject project cards here later -->
-				</div>
-			</div>
-		</section>
+        <div class="v-gutter" id="vGutter" role="separator" aria-orientation="vertical" aria-label="Resize columns" tabindex="0"></div>
 
-		<section class="section" id="skills">
-			<div class="container">
-				<h2>Skills</h2>
-				<ul class="pill-list">
-                    <li>Spring Boot</li>
-					<li>React</li>
-					<li>Angular</li>
-					<li>JavaScript</li>
-					<li>TypeScript</li>
-					<li>Node</li>
-					<li>HTML</li>
-					<li>CSS</li>
-					<li>SQL</li>
-					<li>Git</li>
-					<li>Testing</li>
-					<li>APIs</li>
-				</ul>
-			</div>
-		</section>
+        <div class="card card-guj">
+          <div class="card-label">
+            <span class="script-name">Gujarati</span>
+            <span class="script-native font-guj">ગુજરાતી</span>
+          </div>
+          <textarea class="output-text font-guj" id="TransGujar" placeholder="ગુજરાતી" readonly></textarea>
+        </div>
 
-		<!-- <section class="section" id="contact">
-			<div class="container">
-				<h2>Contact</h2>
-				<form id="contactForm" class="card" novalidate>
-					<div class="field">
-						<label for="name">Name</label>
-						<input id="name" name="name" type="text" autocomplete="name" required />
-						<small class="error" id="nameError" role="alert"></small>
-					</div>
-					<div class="field">
-						<label for="email">Email</label>
-						<input id="email" name="email" type="email" autocomplete="email" required />
-						<small class="error" id="emailError" role="alert"></small>
-					</div>
-					<div class="field">
-						<label for="message">Message</label>
-						<textarea id="message" name="message" rows="5" required></textarea>
-						<small class="error" id="messageError" role="alert"></small>
-					</div>
-					<div class="actions">
-						<button class="btn primary" type="submit">Send</button>
-						<button class="btn" type="reset">Clear</button>
-					</div>
-					<p class="form-note">
-						This form is a demo. It will not send an email, but it will show a success message.
-					</p>
-				</form>
-			</div>
-		</section>
-	</main> -->
+        <div class="h-gutter" id="hGutter" role="separator" aria-orientation="horizontal" aria-label="Resize rows" tabindex="0"></div>
 
-	<footer class="site-footer">
-		<div class="container footer-inner">
-			<p>&copy; <span id="year"></span> Parth Patel</p>
-			<ul class="social">
-				<li><a href="#" aria-label="GitHub">GitHub</a></li>
-				<li><a href="#" aria-label="LinkedIn">LinkedIn</a></li>
-				<li><a href="mailto:parthpatel.c34@gmail.com" aria-label="Email">Email</a></li>
-			</ul>
-		</div>
-	</footer>
+        <div class="card card-tel">
+          <div class="card-label">
+            <span class="script-name">Telugu</span>
+            <span class="script-native font-tel">తెలుగు</span>
+          </div>
+          <textarea class="output-text font-tel" id="TransTelug" placeholder="తెలుగు" readonly></textarea>
+        </div>
 
-	<script src="script.js"></script>
+        <div class="card card-iast">
+          <div class="card-label">
+            <span class="script-name">IAST</span>
+            <span class="script-native">roman</span>
+          </div>
+          <textarea class="output-text font-iast" id="TransIASTx" placeholder="IAST" readonly></textarea>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <dialog id="legend">
+    <div class="legend-inner">
+      <div class="legend-head">
+        <h2>Typing guide</h2>
+        <button class="legend-close" onclick="document.getElementById('legend').close()" aria-label="Close">×</button>
+      </div>
+      <p class="legend-note">Type the input below using this romanized scheme. Lowercase and capital letters are different sounds — capitals usually mean "long" or "retroflex." A leading <span class="key">#</span> forces the next letter to render capitalized in the IAST output only.</p>
+
+      <div class="legend-section">
+        <h3>Vowels</h3>
+        <div class="key-grid">
+          <div><span class="key">a</span><span class="arrow">→</span><span class="glyph">अ</span></div>
+          <div><span class="key">A</span><span class="arrow">→</span><span class="glyph">आ</span></div>
+          <div><span class="key">i</span><span class="arrow">→</span><span class="glyph">इ</span></div>
+          <div><span class="key">I</span><span class="arrow">→</span><span class="glyph">ई</span></div>
+          <div><span class="key">u</span><span class="arrow">→</span><span class="glyph">उ</span></div>
+          <div><span class="key">U</span><span class="arrow">→</span><span class="glyph">ऊ</span></div>
+          <div><span class="key">e</span><span class="arrow">→</span><span class="glyph">ए</span></div>
+          <div><span class="key">o</span><span class="arrow">→</span><span class="glyph">ओ</span></div>
+          <div><span class="key">ai</span><span class="arrow">→</span><span class="glyph">ऐ</span></div>
+          <div><span class="key">au</span><span class="arrow">→</span><span class="glyph">औ</span></div>
+          <div><span class="key">-r</span><span class="arrow">→</span><span class="glyph">ऋ</span></div>
+          <div><span class="key">-R</span><span class="arrow">→</span><span class="glyph">ॠ</span></div>
+          <div><span class="key">-l</span><span class="arrow">→</span><span class="glyph">ऌ</span></div>
+          <div><span class="key">-L</span><span class="arrow">→</span><span class="glyph">ॡ</span></div>
+          <div><span class="key">(E)</span><span class="arrow">→</span><span class="glyph">ऍ</span></div>
+          <div><span class="key">(O)</span><span class="arrow">→</span><span class="glyph">ऑ</span></div>
+          <div><span class="key">(OM)</span><span class="arrow">→</span><span class="glyph">ॐ</span></div>
+        </div>
+      </div>
+
+      <div class="legend-section">
+        <h3>Consonants (each carries an inherent "a" until followed by another vowel)</h3>
+        <div class="key-grid">
+          <div><span class="key">k / kh</span><span class="arrow">→</span><span class="glyph">क / ख</span></div>
+          <div><span class="key">g / gh</span><span class="arrow">→</span><span class="glyph">ग / घ</span></div>
+          <div><span class="key">G</span><span class="arrow">→</span><span class="glyph">ङ</span></div>
+          <div><span class="key">ch / Ch</span><span class="arrow">→</span><span class="glyph">च / छ</span></div>
+          <div><span class="key">j / jh</span><span class="arrow">→</span><span class="glyph">ज / झ</span></div>
+          <div><span class="key">J</span><span class="arrow">→</span><span class="glyph">ञ</span></div>
+          <div><span class="key">T / Th</span><span class="arrow">→</span><span class="glyph">ट / ठ</span></div>
+          <div><span class="key">D / Dh</span><span class="arrow">→</span><span class="glyph">ड / ढ</span></div>
+          <div><span class="key">N</span><span class="arrow">→</span><span class="glyph">ण</span></div>
+          <div><span class="key">t / th</span><span class="arrow">→</span><span class="glyph">त / थ</span></div>
+          <div><span class="key">d / dh</span><span class="arrow">→</span><span class="glyph">द / ध</span></div>
+          <div><span class="key">n</span><span class="arrow">→</span><span class="glyph">न</span></div>
+          <div><span class="key">p / ph</span><span class="arrow">→</span><span class="glyph">प / फ</span></div>
+          <div><span class="key">b / bh</span><span class="arrow">→</span><span class="glyph">ब / भ</span></div>
+          <div><span class="key">m</span><span class="arrow">→</span><span class="glyph">म</span></div>
+          <div><span class="key">y / r / l / v</span><span class="arrow">→</span><span class="glyph">य / र / ल / व</span></div>
+          <div><span class="key">L</span><span class="arrow">→</span><span class="glyph">ळ</span></div>
+          <div><span class="key">sh / Sh</span><span class="arrow">→</span><span class="glyph">श / ष</span></div>
+          <div><span class="key">s / h</span><span class="arrow">→</span><span class="glyph">स / ह</span></div>
+        </div>
+      </div>
+
+      <div class="legend-section">
+        <h3>Nukta letters (Perso-Arabic borrowings)</h3>
+        <p class="legend-note" style="margin:0 0 8px;">Append <span class="key">(.)</span> to a consonant to add a nukta dot.</p>
+        <div class="key-grid">
+          <div><span class="key">k(.)</span><span class="arrow">→</span><span class="glyph">क़</span></div>
+          <div><span class="key">kh(.)</span><span class="arrow">→</span><span class="glyph">ख़</span></div>
+          <div><span class="key">g(.)</span><span class="arrow">→</span><span class="glyph">ग़</span></div>
+          <div><span class="key">j(.)</span><span class="arrow">→</span><span class="glyph">ज़</span></div>
+          <div><span class="key">jh(.)</span><span class="arrow">→</span><span class="glyph">झ़</span></div>
+          <div><span class="key">D(.)</span><span class="arrow">→</span><span class="glyph">ड़</span></div>
+          <div><span class="key">Dh(.)</span><span class="arrow">→</span><span class="glyph">ढ़</span></div>
+          <div><span class="key">p(.)</span><span class="arrow">→</span><span class="glyph">फ़</span></div>
+          <div><span class="key">zh(.)</span><span class="arrow">→</span><span class="glyph">ॹ़</span></div>
+        </div>
+      </div>
+
+      <div class="legend-section">
+        <h3>Marks &amp; punctuation</h3>
+        <div class="key-grid">
+          <div><span class="key">M</span><span class="arrow">→</span><span class="glyph">anusvāra ं</span></div>
+          <div><span class="key">MM</span><span class="arrow">→</span><span class="glyph">candrabindu ँ</span></div>
+          <div><span class="key">H</span><span class="arrow">→</span><span class="glyph">visarga ः</span></div>
+          <div><span class="key">'</span><span class="arrow">→</span><span class="glyph">avagraha ऽ</span></div>
+          <div><span class="key">|  / ||</span><span class="arrow">→</span><span class="glyph">daṇḍa । / ॥</span></div>
+          <div><span class="key">0–9</span><span class="arrow">→</span><span class="glyph">native digits</span></div>
+          <div><span class="key">&lt;&lt; / &gt;&gt;</span><span class="arrow">→</span><span class="glyph">“ ”</span></div>
+          <div><span class="key">&lt; / &gt;</span><span class="arrow">→</span><span class="glyph">‘ ’</span></div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+<script>
+  function toDevanagari() {
+    "use strict";
+    //get input and convert to hex
+    var inp = toUni(document.getElementById("TransInput").value);
+    // VOWELS
+    inp = inp.replace(/\\u0028\\u004f\\u004d\\u0029/g, "\\u0950"); // ॐ DEVANAGARI OM
+    inp = inp.replace(/\\u0061\\u0069/g, "\\u0910"); // ऐ DEVANAGARI LETTER AI
+    inp = inp.replace(/\\u0061\\u0075/g, "\\u0914"); // औ DEVANAGARI LETTER AU
+    inp = inp.replace(/\\u0061/g, "\\u0905"); // अ DEVANAGARI LETTER A
+    inp = inp.replace(/\\u0041/g, "\\u0906"); // आ DEVANAGARI LETTER AA
+    inp = inp.replace(/\\u0069/g, "\\u0907"); // इ DEVANAGARI LETTER I
+    inp = inp.replace(/\\u0049/g, "\\u0908"); // ई DEVANAGARI LETTER II
+    inp = inp.replace(/\\u0075/g, "\\u0909"); // उ DEVANAGARI LETTER U
+    inp = inp.replace(/\\u0055/g, "\\u090a"); // ऊ DEVANAGARI LETTER UU
+    inp = inp.replace(/\\u0065/g, "\\u090f"); // ए DEVANAGARI LETTER E
+    inp = inp.replace(/\\u006f/g, "\\u0913"); // ओ DEVANAGARI LETTER O
+    inp = inp.replace(/\\u002d\\u0072/g, "\\u090b"); // ऋ DEVANAGARI LETTER VOCALIC R
+    inp = inp.replace(/\\u002d\\u0052/g, "\\u0960"); // ॠ DEVANAGARI LETTER VOCALIC RR
+    inp = inp.replace(/\\u002d\\u006c/g, "\\u090c"); // ऌ DEVANAGARI LETTER VOCALIC L
+    inp = inp.replace(/\\u002d\\u004c/g, "\\u0961"); // ॡ DEVANAGARI LETTER VOCALIC LL
+    inp = inp.replace(/\\u0028\\u0045\\u0029/g, "\\u090d"); // ऍ DEVANAGARI LETTER CANDRA E
+    inp = inp.replace(/\\u0028\\u004f\\u0029/g, "\\u0911"); // ऑ DEVANAGARI LETTER CANDRA O
+    // CONSONANTS
+    inp = inp.replace(/\\u006b\\u0068/g, "\\u0916\\u094d"); // ख DEVANAGARI LETTER KHA
+    inp = inp.replace(/\\u006b/g, "\\u0915\\u094d"); // क DEVANAGARI LETTER KA
+    inp = inp.replace(/\\u0067\\u0068/g, "\\u0918\\u094d"); // घ DEVANAGARI LETTER GHA
+    inp = inp.replace(/\\u0067/g, "\\u0917\\u094d"); // ग DEVANAGARI LETTER GA
+    inp = inp.replace(/\\u0047/g, "\\u0919\\u094d"); // ङ DEVANAGARI LETTER NGA
+    inp = inp.replace(/\\u0043\\u0068/g, "\\u091b\\u094d"); // छ DEVANAGARI LETTER CHA
+    inp = inp.replace(/\\u0063\\u0068/g, "\\u091a\\u094d"); // च DEVANAGARI LETTER CA
+    inp = inp.replace(/\\u007a\\u0068/g, "\\u0979\\u094d"); // ॹ DEVANAGARI LETTER ZHA
+    inp = inp.replace(/\\u006a\\u0068/g, "\\u091d\\u094d"); // झ DEVANAGARI LETTER JHA
+    inp = inp.replace(/\\u006a/g, "\\u091c\\u094d"); // ज DEVANAGARI LETTER JA
+    inp = inp.replace(/\\u004a/g, "\\u091e\\u094d"); // ञ DEVANAGARI LETTER NYA
+    inp = inp.replace(/\\u0054\\u0068/g, "\\u0920\\u094d"); // ठ DEVANAGARI LETTER TTHA
+    inp = inp.replace(/\\u0054/g, "\\u091f\\u094d"); // ट DEVANAGARI LETTER TTA
+    inp = inp.replace(/\\u0044\\u0068/g, "\\u0922\\u094d"); // ढ DEVANAGARI LETTER DDHA
+    inp = inp.replace(/\\u0044/g, "\\u0921\\u094d"); // ड DEVANAGARI LETTER DDA
+    inp = inp.replace(/\\u004e/g, "\\u0923\\u094d"); // ण DEVANAGARI LETTER NNA
+    inp = inp.replace(/\\u0074\\u0068/g, "\\u0925\\u094d"); // थ DEVANAGARI LETTER THA
+    inp = inp.replace(/\\u0074/g, "\\u0924\\u094d"); // त DEVANAGARI LETTER TA
+    inp = inp.replace(/\\u0064\\u0068/g, "\\u0927\\u094d"); // ध DEVANAGARI LETTER DHA
+    inp = inp.replace(/\\u0064/g, "\\u0926\\u094d"); // द DEVANAGARI LETTER DA
+    inp = inp.replace(/\\u006e/g, "\\u0928\\u094d"); // न DEVANAGARI LETTER NA
+    inp = inp.replace(/\\u0070\\u0068/g, "\\u092b\\u094d"); // फ DEVANAGARI LETTER PHA
+    inp = inp.replace(/\\u0070/g, "\\u092a\\u094d"); // प DEVANAGARI LETTER PA
+    inp = inp.replace(/\\u0062\\u0068/g, "\\u092d\\u094d"); // भ DEVANAGARI LETTER BHA
+    inp = inp.replace(/\\u0062/g, "\\u092c\\u094d"); // ब DEVANAGARI LETTER BA
+    inp = inp.replace(/\\u006d/g, "\\u092e\\u094d"); // म DEVANAGARI LETTER MA
+    inp = inp.replace(/\\u0079/g, "\\u092f\\u094d"); // य DEVANAGARI LETTER YA
+    inp = inp.replace(/\\u0072/g, "\\u0930\\u094d"); // र DEVANAGARI LETTER RA
+    inp = inp.replace(/\\u006c/g, "\\u0932\\u094d"); // ल DEVANAGARI LETTER LA
+    inp = inp.replace(/\\u004c/g, "\\u0933\\u094d"); // ळ DEVANAGARI LETTER LLA
+    inp = inp.replace(/\\u0076/g, "\\u0935\\u094d"); // व DEVANAGARI LETTER VA
+    inp = inp.replace(/\\u0053\\u0068/g, "\\u0937\\u094d"); // ष DEVANAGARI LETTER SSA
+    inp = inp.replace(/\\u0073\\u0068/g, "\\u0936\\u094d"); // श DEVANAGARI LETTER SHA
+    inp = inp.replace(/\\u0073/g, "\\u0938\\u094d"); // स DEVANAGARI LETTER SA
+    inp = inp.replace(/\\u0068/g, "\\u0939\\u094d"); // ह DEVANAGARI LETTER HA
+    // VOWEL MARKS (Replaces Halant)
+    inp = inp.replace(/\\u094d\\u0028\\u002e\\u0029/g, "\\u093c\\u094d"); // ़ DEVANAGARI SIGN NUKTA
+    inp = inp.replace(/\\u093c\\u094d\\u0028\\u002e\\u0029/g, "\\u093c\\u093c\\u094d"); // ़ DEVANAGARI SIGN NUKTA
+    inp = inp.replace(/\\u094d\\u0905/g, ""); // DEVANAGARI VOWEL SIGN A
+    inp = inp.replace(/\\u094d\\u0914/g, "\\u094c"); // ौ DEVANAGARI VOWEL SIGN AU
+    inp = inp.replace(/\\u094d\\u0910/g, "\\u0948"); // ै DEVANAGARI VOWEL SIGN AI
+    inp = inp.replace(/\\u094d\\u0906/g, "\\u093e"); // ा DEVANAGARI VOWEL SIGN AA
+    inp = inp.replace(/\\u094d\\u0908/g, "\\u0940"); // ी DEVANAGARI VOWEL SIGN II
+    inp = inp.replace(/\\u094d\\u0907/g, "\\u093f"); // ि DEVANAGARI VOWEL SIGN I
+    inp = inp.replace(/\\u094d\\u090a/g, "\\u0942"); // ू DEVANAGARI VOWEL SIGN UU
+    inp = inp.replace(/\\u094d\\u0909/g, "\\u0941"); // ु DEVANAGARI VOWEL SIGN U
+    inp = inp.replace(/\\u094d\\u090d/g, "\\u0945"); // ॅ DEVANAGARI VOWEL SIGN CANDRA E
+    inp = inp.replace(/\\u094d\\u090f/g, "\\u0947"); // े DEVANAGARI VOWEL SIGN E
+    inp = inp.replace(/\\u094d\\u0911/g, "\\u0949"); // ॉ DEVANAGARI VOWEL SIGN CANDRA O
+    inp = inp.replace(/\\u094d\\u0913/g, "\\u094b"); // ो DEVANAGARI VOWEL SIGN O
+    inp = inp.replace(/\\u094d\\u090b/g, "\\u0943"); // ृ DEVANAGARI VOWEL SIGN VOCALIC R
+    inp = inp.replace(/\\u094d\\u0960/g, "\\u0944"); // ॄ DEVANAGARI VOWEL SIGN VOCALIC RR
+    inp = inp.replace(/\\u094d\\u090c/g, "\\u0962"); // ॢ DEVANAGARI VOWEL SIGN VOCALIC L
+    inp = inp.replace(/\\u094d\\u0961/g, "\\u0963"); // ॣ DEVANAGARI VOWEL SIGN VOCALIC LL
+    inp = inp.replace(/\\u004d\\u004d\\u004d/g, "\\u0902"); // ं (IAST) DEVANAGARI SIGN NASALIZED ANUSVARA
+    inp = inp.replace(/\\u004d\\u004d/g, "\\u0901"); // ँ DEVANAGARI SIGN CANDRABINDU
+    inp = inp.replace(/\\u004d/g, "\\u0902"); // ं DEVANAGARI SIGN ANUSVARA
+    inp = inp.replace(/\\u0048/g, "\\u0903"); // ः DEVANAGARI SIGN VISARGA
+    inp = inp.replace(/\\u0027/g, "\\u093d"); // ऽ DEVANAGARI SIGN AVAGRAHA
+    // NUMERALS
+    inp = inp.replace(/\\u0030/g, "\\u0966"); // ० DEVANAGARI DIGIT ZERO
+    inp = inp.replace(/\\u0031/g, "\\u0967"); // १ DEVANAGARI DIGIT ONE
+    inp = inp.replace(/\\u0032/g, "\\u0968"); // २ DEVANAGARI DIGIT TWO
+    inp = inp.replace(/\\u0033/g, "\\u0969"); // ३ DEVANAGARI DIGIT THREE
+    inp = inp.replace(/\\u0034/g, "\\u096a"); // ४ DEVANAGARI DIGIT FOUR
+    inp = inp.replace(/\\u0035/g, "\\u096b"); // ५ DEVANAGARI DIGIT FIVE
+    inp = inp.replace(/\\u0036/g, "\\u096c"); // ६ DEVANAGARI DIGIT SIX
+    inp = inp.replace(/\\u0037/g, "\\u096d"); // ७ DEVANAGARI DIGIT SEVEN
+    inp = inp.replace(/\\u0038/g, "\\u096e"); // ८ DEVANAGARI DIGIT EIGHT
+    inp = inp.replace(/\\u0039/g, "\\u096f"); // ९ DEVANAGARI DIGIT NINE
+    // DANDAS
+    inp = inp.replace(/\\u007c/g, "\\u0964"); // । DEVANAGARI DANDA
+    inp = inp.replace(/\\u0964\\u0964/g, "\\u0965"); // ॥ DEVANAGARI DOUBLE DANDA
+    // QUOTATION MARKS
+    inp = inp.replace(/\\u003c\\u003c/g, "\u201c"); // LEFT DOUBLE
+    inp = inp.replace(/\\u003c/g, "\u2018"); // LEFT SINGLE
+    inp = inp.replace(/\\u003e\\u003e/g, "\u201d"); // RIGHT DOUBLE
+    inp = inp.replace(/\\u003e/g, "\u2019"); // RIGHT SINGLE
+    // # REMOVAL
+    inp = inp.replace(/\\u0023/g, ""); //
+    // Print Output
+    document.getElementById("TransDevan").value = fromUni(inp);
+    // Functions for conversion
+    function toUni(input) {
+      function pad_four(input) {
+        return input.padStart(4, "0");
+      }
+      return Array.from(input)
+        .map((char) => "\\u" + pad_four(char.charCodeAt(0).toString(16)))
+        .join("");
+    }
+
+    function fromUni(text) {
+      return text.replace(/\\u[\dA-F]{4}/gi, function(match) {
+        return String.fromCharCode(parseInt(match.replace(/\\u/g, ""), 16));
+      });
+    }
+  }
+
+  function toGujarati() {
+    "use strict";
+    //get input and convert to hex
+    var inp = toUni(document.getElementById("TransInput").value);
+    // VOWELS
+    inp = inp.replace(/\\u0028\\u004f\\u004d\\u0029/g, "\\u0ad0"); // ૐ GUJARATI OM
+    inp = inp.replace(/\\u0061\\u0069/g, "\\u0a90"); // ઐ GUJARATI LETTER AI
+    inp = inp.replace(/\\u0061\\u0075/g, "\\u0a94"); // ઔ GUJARATI LETTER AU
+    inp = inp.replace(/\\u0061/g, "\\u0a85"); // અ GUJARATI LETTER A
+    inp = inp.replace(/\\u0041/g, "\\u0a86"); // આ GUJARATI LETTER AA
+    inp = inp.replace(/\\u0069/g, "\\u0a87"); // ઇ GUJARATI LETTER I
+    inp = inp.replace(/\\u0049/g, "\\u0a88"); // ઈ GUJARATI LETTER II
+    inp = inp.replace(/\\u0075/g, "\\u0a89"); // ઉ GUJARATI LETTER U
+    inp = inp.replace(/\\u0055/g, "\\u0a8a"); // ઊ GUJARATI LETTER UU
+    inp = inp.replace(/\\u0065/g, "\\u0a8f"); // એ GUJARATI LETTER E
+    inp = inp.replace(/\\u006f/g, "\\u0a93"); // ઓ GUJARATI LETTER O
+    inp = inp.replace(/\\u002d\\u0072/g, "\\u0a8b"); // ઋ GUJARATI LETTER VOCALIC R
+    inp = inp.replace(/\\u002d\\u0052/g, "\\u0ae0"); // ૠ GUJARATI LETTER VOCALIC RR
+    inp = inp.replace(/\\u002d\\u006c/g, "\\u0a8c"); // ઌ GUJARATI LETTER VOCALIC L
+    inp = inp.replace(/\\u002d\\u004c/g, "\\u0ae1"); // ૡ GUJARATI LETTER VOCALIC LL
+    inp = inp.replace(/\\u0028\\u0045\\u0029/g, "\\u0a8d"); // ઍ GUJARATI VOWEL CANDRA E
+    inp = inp.replace(/\\u0028\\u004f\\u0029/g, "\\u0a91"); // ઑ GUJARATI VOWEL CANDRA O
+    // CONSONANTS
+    inp = inp.replace(/\\u006b\\u0068/g, "\\u0a96\\u0acd"); // ખ GUJARATI LETTER KHA
+    inp = inp.replace(/\\u006b/g, "\\u0a95\\u0acd"); // ક GUJARATI LETTER KA
+    inp = inp.replace(/\\u0067\\u0068/g, "\\u0a98\\u0acd"); // ઘ GUJARATI LETTER GHA
+    inp = inp.replace(/\\u0067/g, "\\u0a97\\u0acd"); // ગ GUJARATI LETTER GA
+    inp = inp.replace(/\\u0047/g, "\\u0a99\\u0acd"); // ઙ GUJARATI LETTER NGA
+    inp = inp.replace(/\\u0043\\u0068/g, "\\u0a9b\\u0acd"); // છ GUJARATI LETTER CHA
+    inp = inp.replace(/\\u0063\\u0068/g, "\\u0a9a\\u0acd"); // ચ GUJARATI LETTER CA
+    inp = inp.replace(/\\u007a\\u0068/g, "\\u0af9\\u0acd"); // ૹ GUJARATI LETTER ZHA
+    inp = inp.replace(/\\u006a\\u0068/g, "\\u0a9d\\u0acd"); // ઝ GUJARATI LETTER JHA
+    inp = inp.replace(/\\u006a/g, "\\u0a9c\\u0acd"); // જ GUJARATI LETTER JA
+    inp = inp.replace(/\\u004a/g, "\\u0a9e\\u0acd"); // ઞ GUJARATI LETTER NYA
+    inp = inp.replace(/\\u0054\\u0068/g, "\\u0aa0\\u0acd"); // ઠ GUJARATI LETTER TTHA
+    inp = inp.replace(/\\u0054/g, "\\u0a9f\\u0acd"); // ટ GUJARATI LETTER TTA
+    inp = inp.replace(/\\u0044\\u0068/g, "\\u0aa2\\u0acd"); // ઢ GUJARATI LETTER DDHA
+    inp = inp.replace(/\\u0044/g, "\\u0aa1\\u0acd"); // ડ GUJARATI LETTER DDA
+    inp = inp.replace(/\\u004e/g, "\\u0aa3\\u0acd"); // ણ GUJARATI LETTER NNA
+    inp = inp.replace(/\\u0074\\u0068/g, "\\u0aa5\\u0acd"); // થ GUJARATI LETTER THA
+    inp = inp.replace(/\\u0074/g, "\\u0aa4\\u0acd"); // ત GUJARATI LETTER TA
+    inp = inp.replace(/\\u0064\\u0068/g, "\\u0aa7\\u0acd"); // ધ GUJARATI LETTER DHA
+    inp = inp.replace(/\\u0064/g, "\\u0aa6\\u0acd"); // દ GUJARATI LETTER DA
+    inp = inp.replace(/\\u006e/g, "\\u0aa8\\u0acd"); // ન GUJARATI LETTER NA
+    inp = inp.replace(/\\u0070\\u0068/g, "\\u0aab\\u0acd"); // ફ GUJARATI LETTER PHA
+    inp = inp.replace(/\\u0070/g, "\\u0aaa\\u0acd"); // પ GUJARATI LETTER PA
+    inp = inp.replace(/\\u0062\\u0068/g, "\\u0aad\\u0acd"); // ભ GUJARATI LETTER BHA
+    inp = inp.replace(/\\u0062/g, "\\u0aac\\u0acd"); // બ GUJARATI LETTER BA
+    inp = inp.replace(/\\u006d/g, "\\u0aae\\u0acd"); // મ GUJARATI LETTER MA
+    inp = inp.replace(/\\u0079/g, "\\u0aaf\\u0acd"); // ય GUJARATI LETTER YA
+    inp = inp.replace(/\\u0072/g, "\\u0ab0\\u0acd"); // ર GUJARATI LETTER RA
+    inp = inp.replace(/\\u006c/g, "\\u0ab2\\u0acd"); // લ GUJARATI LETTER LA
+    inp = inp.replace(/\\u004c/g, "\\u0ab3\\u0acd"); // ળ GUJARATI LETTER LLA
+    inp = inp.replace(/\\u0076/g, "\\u0ab5\\u0acd"); // વ GUJARATI LETTER VA
+    inp = inp.replace(/\\u0053\\u0068/g, "\\u0ab7\\u0acd"); // ષ GUJARATI LETTER SSA
+    inp = inp.replace(/\\u0073\\u0068/g, "\\u0ab6\\u0acd"); // શ GUJARATI LETTER SHA
+    inp = inp.replace(/\\u0073/g, "\\u0ab8\\u0acd"); // સ GUJARATI LETTER SA
+    inp = inp.replace(/\\u0068/g, "\\u0ab9\\u0acd"); // હ GUJARATI LETTER HA
+    // VOWEL MARKS (Replaces Halant)
+    inp = inp.replace(/\\u0acd\\u0028\\u002e\\u0029/g, "\\u0abc\\u0acd"); // ़ DEVANAGARI SIGN NUKTA
+    inp = inp.replace(/\\u0abc\\u0acd\\u0028\\u002e\\u0029/g, "\\u0abc\\u0abc\\u0acd"); // ़ DEVANAGARI SIGN NUKTA
+    inp = inp.replace(/\\u0acd\\u0a85/g, ""); // GUJARATI VOWEL SIGN A
+    inp = inp.replace(/\\u0acd\\u0a94/g, "\\u0acc"); // ૌ GUJARATI VOWEL SIGN AU
+    inp = inp.replace(/\\u0acd\\u0a90/g, "\\u0ac8"); // ૈ GUJARATI VOWEL SIGN AI
+    inp = inp.replace(/\\u0acd\\u0a86/g, "\\u0abe"); // ા GUJARATI VOWEL SIGN AA
+    inp = inp.replace(/\\u0acd\\u0a88/g, "\\u0ac0"); // ી GUJARATI VOWEL SIGN II
+    inp = inp.replace(/\\u0acd\\u0a87/g, "\\u0abf"); // િ GUJARATI VOWEL SIGN I
+    inp = inp.replace(/\\u0acd\\u0a8a/g, "\\u0ac2"); // ૂ GUJARATI VOWEL SIGN UU
+    inp = inp.replace(/\\u0acd\\u0a89/g, "\\u0ac1"); // ુ GUJARATI VOWEL SIGN U
+    inp = inp.replace(/\\u0acd\\u0a8d/g, "\\u0ac5"); // ૅ GUJARATI VOWEL SIGN CANDRA E
+    inp = inp.replace(/\\u0acd\\u0a8f/g, "\\u0ac7"); // ે GUJARATI VOWEL SIGN E
+    inp = inp.replace(/\\u0acd\\u0a91/g, "\\u0ac9"); // ૉ GUJARATI VOWEL SIGN CANDRA O
+    inp = inp.replace(/\\u0acd\\u0a93/g, "\\u0acb"); // ો GUJARATI VOWEL SIGN O
+    inp = inp.replace(/\\u0acd\\u0a8b/g, "\\u0ac3"); // ૃ GUJARATI VOWEL SIGN VOCALIC R
+    inp = inp.replace(/\\u0acd\\u0ae0/g, "\\u0ac4"); // ૄ GUJARATI VOWEL SIGN VOCALIC RR
+    inp = inp.replace(/\\u0acd\\u0a8c/g, "\\u0ae2"); // ૢ GUJARATI VOWEL SIGN VOCALIC L
+    inp = inp.replace(/\\u0acd\\u0ae1/g, "\\u0ae3"); // ૣ GUJARATI VOWEL SIGN VOCALIC LL
+    inp = inp.replace(/\\u004d\\u004d\\u004d/g, "\\u0a82"); // ં (IAST) GUJARATI SIGN NASALIZED ANUSVARA
+    inp = inp.replace(/\\u004d\\u004d/g, "\\u0a81"); // ઁ GUJARATI SIGN CANDRABINDU
+    inp = inp.replace(/\\u004d/g, "\\u0a82"); // ં GUJARATI SIGN ANUSVARA
+    inp = inp.replace(/\\u0048/g, "\\u0a83"); // ઃ GUJARATI SIGN VISARGA
+    inp = inp.replace(/\\u0027/g, "\\u0abd"); // ઽ GUJARATI SIGN AVAGRAHA
+    // NUMERALS
+    inp = inp.replace(/\\u0030/g, "\\u0ae6"); // ૦ GUJARATI DIGIT ZERO
+    inp = inp.replace(/\\u0031/g, "\\u0ae7"); // ૧ GUJARATI DIGIT ONE
+    inp = inp.replace(/\\u0032/g, "\\u0ae8"); // ૨ GUJARATI DIGIT TWO
+    inp = inp.replace(/\\u0033/g, "\\u0ae9"); // ૩ GUJARATI DIGIT THREE
+    inp = inp.replace(/\\u0034/g, "\\u0aea"); // ૪ GUJARATI DIGIT FOUR
+    inp = inp.replace(/\\u0035/g, "\\u0aeb"); // ૫ GUJARATI DIGIT FIVE
+    inp = inp.replace(/\\u0036/g, "\\u0aec"); // ૬ GUJARATI DIGIT SIX
+    inp = inp.replace(/\\u0037/g, "\\u0aed"); // ૭ GUJARATI DIGIT SEVEN
+    inp = inp.replace(/\\u0038/g, "\\u0aee"); // ૮ GUJARATI DIGIT EIGHT
+    inp = inp.replace(/\\u0039/g, "\\u0aef"); // ૯ GUJARATI DIGIT NINE
+    // DANDAS
+    inp = inp.replace(/\\u007c/g, "\\u0964"); // । DEVANAGARI DANDA
+    inp = inp.replace(/\\u0964\\u0964/g, "\\u0965"); // ॥ DEVANAGARI DOUBLE DANDA
+    // QUOTATION MARKS
+    inp = inp.replace(/\\u003c\\u003c/g, "\u201c"); // LEFT DOUBLE
+    inp = inp.replace(/\\u003c/g, "\u2018"); // LEFT SINGLE
+    inp = inp.replace(/\\u003e\\u003e/g, "\u201d"); // RIGHT DOUBLE
+    inp = inp.replace(/\\u003e/g, "\u2019"); // RIGHT SINGLE
+    // # REMOVAL
+    inp = inp.replace(/\\u0023/g, ""); //
+    // Print Output
+    document.getElementById("TransGujar").value = fromUni(inp);
+    // Functions for conversion
+    function toUni(input) {
+      function pad_four(input) {
+        return input.padStart(4, "0");
+      }
+      return Array.from(input)
+        .map((char) => "\\u" + pad_four(char.charCodeAt(0).toString(16)))
+        .join("");
+    }
+
+    function fromUni(text) {
+      return text.replace(/\\u[\dA-F]{4}/gi, function(match) {
+        return String.fromCharCode(parseInt(match.replace(/\\u/g, ""), 16));
+      });
+    }
+  }
+  
+  function toTelugu() {
+    "use strict";
+    //get input and convert to hex
+    var inp = toUni(document.getElementById("TransInput").value);
+    // VOWELS
+    inp = inp.replace(/\\u0028\\u004f\\u004d\\u0029/g, "\\u0c13\\u0c02"); // ఓం TELUGU OM
+    inp = inp.replace(/\\u0061\\u0069/g, "\\u0c10"); // ऐ TELUGU LETTER AI
+    inp = inp.replace(/\\u0061\\u0075/g, "\\u0c14"); // औ TELUGU LETTER AU
+    inp = inp.replace(/\\u0061/g, "\\u0c05"); // अ TELUGU LETTER A
+    inp = inp.replace(/\\u0041/g, "\\u0c06"); // आ TELUGU LETTER AA
+    inp = inp.replace(/\\u0069/g, "\\u0c07"); // इ TELUGU LETTER I
+    inp = inp.replace(/\\u0049/g, "\\u0c08"); // ई TELUGU LETTER II
+    inp = inp.replace(/\\u0075/g, "\\u0c09"); // उ TELUGU LETTER U
+    inp = inp.replace(/\\u0055/g, "\\u0c0a"); // ऊ TELUGU LETTER UU
+    inp = inp.replace(/\\u0065/g, "\\u0c0f"); // ए TELUGU LETTER E
+    inp = inp.replace(/\\u006f/g, "\\u0c13"); // ओ TELUGU LETTER O
+    inp = inp.replace(/\\u002d\\u0072/g, "\\u0c0b"); // ऋ TELUGU LETTER VOCALIC R
+    inp = inp.replace(/\\u002d\\u0052/g, "\\u0c60"); // ॠ TELUGU LETTER VOCALIC RR
+    inp = inp.replace(/\\u002d\\u006c/g, "\\u0c0c"); // ऌ TELUGU LETTER VOCALIC L
+    inp = inp.replace(/\\u002d\\u004c/g, "\\u0c61"); // ॡ TELUGU LETTER VOCALIC LL
+    inp = inp.replace(/\\u0028\\u0045\\u0029/g, "\\u0c0d"); // ऍ TELUGU LETTER CANDRA E
+    inp = inp.replace(/\\u0028\\u004f\\u0029/g, "\\u0c11"); // ऑ TELUGU LETTER CANDRA O
+    // CONSONANTS
+    inp = inp.replace(/\\u006b\\u0068/g, "\\u0c16\\u0c4d"); // ख TELUGU LETTER KHA
+    inp = inp.replace(/\\u006b/g, "\\u0c15\\u0c4d"); // क TELUGU LETTER KA
+    inp = inp.replace(/\\u0067\\u0068/g, "\\u0c18\\u0c4d"); // घ TELUGU LETTER GHA
+    inp = inp.replace(/\\u0067/g, "\\u0c17\\u0c4d"); // ग TELUGU LETTER GA
+    inp = inp.replace(/\\u0047/g, "\\u0c19\\u0c4d"); // ङ TELUGU LETTER NGA
+    inp = inp.replace(/\\u0043\\u0068/g, "\\u0c1b\\u0c4d"); // छ TELUGU LETTER CHA
+    inp = inp.replace(/\\u0063\\u0068/g, "\\u0c1a\\u0c4d"); // च TELUGU LETTER CA
+    inp = inp.replace(/\\u007a\\u0068/g, "\\u0c79\\u0c4d"); // ॹ TELUGU LETTER ZHA
+    inp = inp.replace(/\\u006a\\u0068/g, "\\u0c1d\\u0c4d"); // झ TELUGU LETTER JHA
+    inp = inp.replace(/\\u006a/g, "\\u0c1c\\u0c4d"); // ज TELUGU LETTER JA
+    inp = inp.replace(/\\u004a/g, "\\u0c1e\\u0c4d"); // ञ TELUGU LETTER NYA
+    inp = inp.replace(/\\u0054\\u0068/g, "\\u0c20\\u0c4d"); // ठ TELUGU LETTER TTHA
+    inp = inp.replace(/\\u0054/g, "\\u0c1f\\u0c4d"); // ट TELUGU LETTER TTA
+    inp = inp.replace(/\\u0044\\u0068/g, "\\u0c22\\u0c4d"); // ढ TELUGU LETTER DDHA
+    inp = inp.replace(/\\u0044/g, "\\u0c21\\u0c4d"); // ड TELUGU LETTER DDA
+    inp = inp.replace(/\\u004e/g, "\\u0c23\\u0c4d"); // ण TELUGU LETTER NNA
+    inp = inp.replace(/\\u0074\\u0068/g, "\\u0c25\\u0c4d"); // थ TELUGU LETTER THA
+    inp = inp.replace(/\\u0074/g, "\\u0c24\\u0c4d"); // त TELUGU LETTER TA
+    inp = inp.replace(/\\u0064\\u0068/g, "\\u0c27\\u0c4d"); // ध TELUGU LETTER DHA
+    inp = inp.replace(/\\u0064/g, "\\u0c26\\u0c4d"); // द TELUGU LETTER DA
+    inp = inp.replace(/\\u006e/g, "\\u0c28\\u0c4d"); // न TELUGU LETTER NA
+    inp = inp.replace(/\\u0070\\u0068/g, "\\u0c2b\\u0c4d"); // फ TELUGU LETTER PHA
+    inp = inp.replace(/\\u0070/g, "\\u0c2a\\u0c4d"); // प TELUGU LETTER PA
+    inp = inp.replace(/\\u0062\\u0068/g, "\\u0c2d\\u0c4d"); // भ TELUGU LETTER BHA
+    inp = inp.replace(/\\u0062/g, "\\u0c2c\\u0c4d"); // ब TELUGU LETTER BA
+    inp = inp.replace(/\\u006d/g, "\\u0c2e\\u0c4d"); // म TELUGU LETTER MA
+    inp = inp.replace(/\\u0079/g, "\\u0c2f\\u0c4d"); // य TELUGU LETTER YA
+    inp = inp.replace(/\\u0072/g, "\\u0c30\\u0c4d"); // र TELUGU LETTER RA
+    inp = inp.replace(/\\u006c/g, "\\u0c32\\u0c4d"); // ल TELUGU LETTER LA
+    inp = inp.replace(/\\u004c/g, "\\u0c33\\u0c4d"); // ळ TELUGU LETTER LLA
+    inp = inp.replace(/\\u0076/g, "\\u0c35\\u0c4d"); // व TELUGU LETTER VA
+    inp = inp.replace(/\\u0053\\u0068/g, "\\u0c37\\u0c4d"); // ष TELUGU LETTER SSA
+    inp = inp.replace(/\\u0073\\u0068/g, "\\u0c36\\u0c4d"); // श TELUGU LETTER SHA
+    inp = inp.replace(/\\u0073/g, "\\u0c38\\u0c4d"); // स TELUGU LETTER SA
+    inp = inp.replace(/\\u0068/g, "\\u0c39\\u0c4d"); // ह TELUGU LETTER HA
+    // VOWEL MARKS (Replaces Halant)
+    inp = inp.replace(/\\u0c4d\\u0028\\u002e\\u0029/g, "\\u0c3c\\u0c4d"); // ़ DEVANAGARI SIGN NUKTA
+    inp = inp.replace(/\\u0c3c\\u0c4d\\u0028\\u002e\\u0029/g, "\\u0c3c\\u0c3c\\u0c4d"); // ़ DEVANAGARI SIGN NUKTA
+    inp = inp.replace(/\\u0c4d\\u0c05/g, ""); // TELUGU VOWEL SIGN A
+    inp = inp.replace(/\\u0c4d\\u0c14/g, "\\u0c4c"); // ौ TELUGU VOWEL SIGN AU
+    inp = inp.replace(/\\u0c4d\\u0c10/g, "\\u0c48"); // ै TELUGU VOWEL SIGN AI
+    inp = inp.replace(/\\u0c4d\\u0c06/g, "\\u0c3e"); // ा TELUGU VOWEL SIGN AA
+    inp = inp.replace(/\\u0c4d\\u0c08/g, "\\u0c40"); // ी TELUGU VOWEL SIGN II
+    inp = inp.replace(/\\u0c4d\\u0c07/g, "\\u0c3f"); // ि TELUGU VOWEL SIGN I
+    inp = inp.replace(/\\u0c4d\\u0c0a/g, "\\u0c42"); // ू TELUGU VOWEL SIGN UU
+    inp = inp.replace(/\\u0c4d\\u0c09/g, "\\u0c41"); // ु TELUGU VOWEL SIGN U
+    inp = inp.replace(/\\u0c4d\\u0c0d/g, "\\u0c45"); // ॅ TELUGU VOWEL SIGN CANDRA E
+    inp = inp.replace(/\\u0c4d\\u0c0f/g, "\\u0c47"); // े TELUGU VOWEL SIGN E
+    inp = inp.replace(/\\u0c4d\\u0c11/g, "\\u0c49"); // ॉ TELUGU VOWEL SIGN CANDRA O
+    inp = inp.replace(/\\u0c4d\\u0c13/g, "\\u0c4b"); // ो TELUGU VOWEL SIGN O
+    inp = inp.replace(/\\u0c4d\\u0c0b/g, "\\u0c43"); // ृ TELUGU VOWEL SIGN VOCALIC R
+    inp = inp.replace(/\\u0c4d\\u0c60/g, "\\u0c44"); // ॄ TELUGU VOWEL SIGN VOCALIC RR
+    inp = inp.replace(/\\u0c4d\\u0c0c/g, "\\u0c62"); // ॢ TELUGU VOWEL SIGN VOCALIC L
+    inp = inp.replace(/\\u0c4d\\u0c61/g, "\\u0c63"); // ॣ TELUGU VOWEL SIGN VOCALIC LL
+    inp = inp.replace(/\\u004d\\u004d\\u004d/g, "\\u0c02"); // ं (IAST) TELUGU SIGN NASALIZED ANUSVARA
+    inp = inp.replace(/\\u004d\\u004d/g, "\\u0c01"); // ँ TELUGU SIGN CANDRABINDU
+    inp = inp.replace(/\\u004d/g, "\\u0c02"); // ं TELUGU SIGN ANUSVARA
+    inp = inp.replace(/\\u0048/g, "\\u0c03"); // ः TELUGU SIGN VISARGA
+    inp = inp.replace(/\\u0027/g, "\\u0c3d"); // ऽ TELUGU SIGN AVAGRAHA
+    // NUMERALS
+    inp = inp.replace(/\\u0030/g, "\\u0c66"); // ० TELUGU DIGIT ZERO
+    inp = inp.replace(/\\u0031/g, "\\u0c67"); // १ TELUGU DIGIT ONE
+    inp = inp.replace(/\\u0032/g, "\\u0c68"); // २ TELUGU DIGIT TWO
+    inp = inp.replace(/\\u0033/g, "\\u0c69"); // ३ TELUGU DIGIT THREE
+    inp = inp.replace(/\\u0034/g, "\\u0c6a"); // ४ TELUGU DIGIT FOUR
+    inp = inp.replace(/\\u0035/g, "\\u0c6b"); // ५ TELUGU DIGIT FIVE
+    inp = inp.replace(/\\u0036/g, "\\u0c6c"); // ६ TELUGU DIGIT SIX
+    inp = inp.replace(/\\u0037/g, "\\u0c6d"); // ७ TELUGU DIGIT SEVEN
+    inp = inp.replace(/\\u0038/g, "\\u0c6e"); // ८ TELUGU DIGIT EIGHT
+    inp = inp.replace(/\\u0039/g, "\\u0c6f"); // ९ TELUGU DIGIT NINE
+    // DANDAS
+    inp = inp.replace(/\\u007c/g, "\\u0964"); // । DEVANAGARI DANDA
+    inp = inp.replace(/\\u0964\\u0964/g, "\\u0965"); // ॥ DEVANAGARI DOUBLE DANDA
+    // QUOTATION MARKS
+    inp = inp.replace(/\\u003c\\u003c/g, "\u201c"); // LEFT DOUBLE
+    inp = inp.replace(/\\u003c/g, "\u2018"); // LEFT SINGLE
+    inp = inp.replace(/\\u003e\\u003e/g, "\u201d"); // RIGHT DOUBLE
+    inp = inp.replace(/\\u003e/g, "\u2019"); // RIGHT SINGLE
+    // # REMOVAL
+    inp = inp.replace(/\\u0023/g, ""); //
+    // Print Output
+    document.getElementById("TransTelug").value = fromUni(inp);
+    // Functions for conversion
+    function toUni(input) {
+      function pad_four(input) {
+        return input.padStart(4, "0");
+      }
+      return Array.from(input)
+        .map((char) => "\\u" + pad_four(char.charCodeAt(0).toString(16)))
+        .join("");
+    }
+
+    function fromUni(text) {
+      return text.replace(/\\u[\dA-F]{4}/gi, function(match) {
+        return String.fromCharCode(parseInt(match.replace(/\\u/g, ""), 16));
+      });
+    }
+  }
+
+  function toIAST() {
+    "use strict";
+    //get input and convert to hex
+    var inp = toUni(document.getElementById("TransInput").value);
+    // VOWELS
+    inp = inp.replace(/\\u0023\\u0028\\u004f\\u004d\\u0029/g, "Oṃ"); // ॐ
+    inp = inp.replace(/\\u0028\\u004f\\u004d\\u0029/g, "oṃ"); // ॐ
+    inp = inp.replace(/\\u0023\\u0061\\u0069/g, "Ai"); // Ai
+    inp = inp.replace(/\\u0061\\u0069/g, "ai"); // ai
+    inp = inp.replace(/\\u0023\\u0061\\u0075/g, "Au"); // Au
+    inp = inp.replace(/\\u0061\\u0075/g, "au"); // au
+    inp = inp.replace(/\\u0023\\u0041/g, "Ā"); // Ā
+    inp = inp.replace(/\\u0041/g, "ā"); // ā
+    inp = inp.replace(/\\u0023\\u0061/g, "A"); // A
+    inp = inp.replace(/\\u0061/g, "a"); // a
+    inp = inp.replace(/\\u0023\\u0049/g, "Ī"); // Ī
+    inp = inp.replace(/\\u0049/g, "ī"); // ī
+    inp = inp.replace(/\\u0023\\u0069/g, "I"); // I
+    inp = inp.replace(/\\u0069/g, "i"); // i
+    inp = inp.replace(/\\u0023\\u0055/g, "Ū"); // Ū
+    inp = inp.replace(/\\u0055/g, "ū"); // ū
+    inp = inp.replace(/\\u0023\\u0075/g, "U"); // U
+    inp = inp.replace(/\\u0075/g, "u"); // u
+    inp = inp.replace(/\\u0023\\u0065/g, "E"); // E
+    inp = inp.replace(/\\u0065/g, "e"); // e
+    inp = inp.replace(/\\u0023\\u006f/g, "O"); // O
+    inp = inp.replace(/\\u006f/g, "o"); // o
+    inp = inp.replace(/\\u0023\\u002d\\u0072/g, "Ṛ"); // Ṛ
+    inp = inp.replace(/\\u002d\\u0072/g, "ṛ"); // ṛ
+    inp = inp.replace(/\\u0023\\u002d\\u0052/g, "Ṝ"); // Ṝ
+    inp = inp.replace(/\\u002d\\u0052/g, "ṝ"); // ṝ
+    inp = inp.replace(/\\u0023\\u002d\\u006c/g, "Ḷ"); // Ḷ
+    inp = inp.replace(/\\u002d\\u006c/g, "ḷ"); // ḷ
+    inp = inp.replace(/\\u0023\\u002d\\u004c/g, "Ḹ"); // Ḹ
+    inp = inp.replace(/\\u002d\\u004c/g, "ḹ"); // ḹ
+    inp = inp.replace(/\\u0023\\u0028\\u0045\\u0029/g, "Æ"); // Æ
+    inp = inp.replace(/\\u0028\\u0045\\u0029/g, "æ"); // æ
+    inp = inp.replace(/\\u0023\\u0028\\u004f\\u0029/g, "Ô"); // Ô
+    inp = inp.replace(/\\u0028\\u004f\\u0029/g, "ô"); // ô
+    // URDU CONSONANTS
+    inp = inp.replace(/\\u0023\\u006b\\u0028\\u002e\\u0029/g, "Q"); // क़
+    inp = inp.replace(/\\u006b\\u0028\\u002e\\u0029/g, "q"); // क़
+    inp = inp.replace(/\\u0023\\u006b\\u0068\\u0028\\u002e\\u0029/g, "K͟h"); // ख़
+    inp = inp.replace(/\\u006b\\u0068\\u0028\\u002e\\u0029/g, "k͟h"); // ख़
+    inp = inp.replace(/\\u0023\\u0067\\u0028\\u002e\\u0029/g, "G͟h"); // ग़
+    inp = inp.replace(/\\u0067\\u0028\\u002e\\u0029/g, "g͟h"); // ग़
+    inp = inp.replace(/\\u0023\\u006a\\u0068\\u0028\\u002e\\u0029/g, "Z͟h"); // झ़
+    inp = inp.replace(/\\u006a\\u0068\\u0028\\u002e\\u0029/g, "z͟h"); // झ़
+    inp = inp.replace(/\\u0023\\u006a\\u0028\\u002e\\u0029\\u0028\\u002e\\u0029/g, "Ẕ"); // ज़़
+    inp = inp.replace(/\\u006a\\u0028\\u002e\\u0029\\u0028\\u002e\\u0029/g, "ẕ"); // ज़़
+    inp = inp.replace(/\\u0023\\u006a\\u0028\\u002e\\u0029/g, "Z"); // ज़
+    inp = inp.replace(/\\u006a\\u0028\\u002e\\u0029/g, "z"); // ज़
+    inp = inp.replace(/\\u0023\\u0044\\u0068\\u0028\\u002e\\u0029/g, "Ṛh"); // ढ़
+    inp = inp.replace(/\\u0044\\u0068\\u0028\\u002e\\u0029/g, "ṛh"); // ढ़
+    inp = inp.replace(/\\u0023\\u0044\\u0028\\u002e\\u0029/g, "Ṛ"); // ड़
+    inp = inp.replace(/\\u0044\\u0028\\u002e\\u0029/g, "ṛ"); // ड़
+    inp = inp.replace(/\\u0023\\u0070\\u0028\\u002e\\u0029/g, "F"); // फ़
+    inp = inp.replace(/\\u0070\\u0028\\u002e\\u0029/g, "f"); // फ़
+    inp = inp.replace(/\\u0023\\u007a\\u0068\\u0028\\u002e\\u0029/g, "Z̤"); // ॹ़
+    inp = inp.replace(/\\u007a\\u0068\\u0028\\u002e\\u0029/g, "z̤"); // ॹ़
+    // CONSONANTS
+    inp = inp.replace(/\\u0023\\u006b\\u0068/g, "Kh"); // ખ્
+    inp = inp.replace(/\\u006b\\u0068/g, "kh"); // ખ્
+    inp = inp.replace(/\\u0023\\u006b/g, "K"); // ક્
+    inp = inp.replace(/\\u006b/g, "k"); // ક્
+    inp = inp.replace(/\\u0023\\u0067\\u0068/g, "Gh"); // ઘ્
+    inp = inp.replace(/\\u0067\\u0068/g, "gh"); // ઘ્
+    inp = inp.replace(/\\u0023\\u0067/g, "G"); // ગ્
+    inp = inp.replace(/\\u0067/g, "g"); // ગ્
+    inp = inp.replace(/\\u0023\\u0047/g, "Ṅ"); // ઙ્
+    inp = inp.replace(/\\u0047/g, "ṅ"); // ઙ્
+    inp = inp.replace(/\\u0023\\u0043\\u0068/g, "Ch"); // છ્
+    inp = inp.replace(/\\u0043\\u0068/g, "ch"); // છ્
+    inp = inp.replace(/\\u0023\\u0063\\u0068/g, "C"); // ચ્
+    inp = inp.replace(/\\u0063\\u0068/g, "c"); // ચ્
+    inp = inp.replace(/\\u0023\\u006a\\u0068/g, "Jh"); // ઝ્
+    inp = inp.replace(/\\u006a\\u0068/g, "jh"); // ઝ્
+    inp = inp.replace(/\\u0023\\u007a\\u0068/g, "Ẓ"); // ॹ
+    inp = inp.replace(/\\u007a\\u0068/g, "ẓ"); // ॹ
+    inp = inp.replace(/\\u0023\\u006a/g, "J"); // જ્
+    inp = inp.replace(/\\u006a/g, "j"); // જ્
+    inp = inp.replace(/\\u0023\\u004a/g, "Ñ"); // ઞ્
+    inp = inp.replace(/\\u004a/g, "ñ"); // ઞ્
+    inp = inp.replace(/\\u0023\\u0054\\u0068/g, "Ṭh"); // ઠ્
+    inp = inp.replace(/\\u0054\\u0068/g, "ṭh"); // ઠ્
+    inp = inp.replace(/\\u0023\\u0054/g, "Ṭ"); // ટ્
+    inp = inp.replace(/\\u0054/g, "ṭ"); // ટ્
+    inp = inp.replace(/\\u0023\\u0044\\u0068/g, "Ḍh"); // ઢ્
+    inp = inp.replace(/\\u0044\\u0068/g, "ḍh"); // ઢ્
+    inp = inp.replace(/\\u0023\\u0044/g, "Ḍ"); // ડ્
+    inp = inp.replace(/\\u0044/g, "ḍ"); // ડ્
+    inp = inp.replace(/\\u0023\\u004e/g, "Ṇ"); // ણ્
+    inp = inp.replace(/\\u004e/g, "ṇ"); // ણ્
+    inp = inp.replace(/\\u0023\\u0074\\u0068/g, "Th"); // થ્
+    inp = inp.replace(/\\u0074\\u0068/g, "th"); // થ્
+    inp = inp.replace(/\\u0023\\u0074/g, "T"); // ત્
+    inp = inp.replace(/\\u0074/g, "t"); // ત્
+    inp = inp.replace(/\\u0023\\u0064\\u0068/g, "Dh"); // ધ્
+    inp = inp.replace(/\\u0064\\u0068/g, "dh"); // ધ્
+    inp = inp.replace(/\\u0023\\u0064/g, "D"); // દ્
+    inp = inp.replace(/\\u0064/g, "d"); // દ્
+    inp = inp.replace(/\\u0023\\u006e/g, "N"); // ન્
+    inp = inp.replace(/\\u006e/g, "n"); // ન્
+    inp = inp.replace(/\\u0023\\u0070\\u0068/g, "Ph"); // ફ્
+    inp = inp.replace(/\\u0070\\u0068/g, "ph"); // ફ્
+    inp = inp.replace(/\\u0023\\u0070/g, "P"); // પ્
+    inp = inp.replace(/\\u0070/g, "p"); // પ્
+    inp = inp.replace(/\\u0023\\u0062\\u0068/g, "Bh"); // ભ્
+    inp = inp.replace(/\\u0062\\u0068/g, "bh"); // ભ્
+    inp = inp.replace(/\\u0023\\u0062/g, "B"); // બ્
+    inp = inp.replace(/\\u0062/g, "b"); // બ્
+    inp = inp.replace(/\\u0023\\u006d/g, "M"); // મ્
+    inp = inp.replace(/\\u006d/g, "m"); // મ્
+    inp = inp.replace(/\\u0023\\u0079/g, "Y"); // ય્
+    inp = inp.replace(/\\u0079/g, "y"); // ય્
+    inp = inp.replace(/\\u0023\\u0072/g, "R"); // ર્
+    inp = inp.replace(/\\u0072/g, "r"); // ર્
+    inp = inp.replace(/\\u0023\\u006c/g, "L"); // લ્
+    inp = inp.replace(/\\u006c/g, "l"); // લ્
+    inp = inp.replace(/\\u0023\\u004c/g, "Ḻ"); // ળ્
+    inp = inp.replace(/\\u004c/g, "ḻ"); // ળ્
+    inp = inp.replace(/\\u0023\\u0076/g, "V"); // વ્
+    inp = inp.replace(/\\u0076/g, "v"); // વ્
+    inp = inp.replace(/\\u0023\\u0053\\u0068/g, "Ṣ"); // ષ્
+    inp = inp.replace(/\\u0053\\u0068/g, "ṣ"); // ષ્
+    inp = inp.replace(/\\u0023\\u0073\\u0068/g, "Ś"); // શ્
+    inp = inp.replace(/\\u0073\\u0068/g, "ś"); // શ્
+    inp = inp.replace(/\\u0023\\u0073/g, "S"); // સ્
+    inp = inp.replace(/\\u0073/g, "s"); // સ્
+    inp = inp.replace(/\\u0023\\u0068/g, "H"); // હ્
+    inp = inp.replace(/\\u0068/g, "h"); // હ્
+    // VOWEL MARKS
+    inp = inp.replace(/\\u004d\\u004d\\u004d/g, "\\u0303"); // ં (IAST)
+    inp = inp.replace(/\\u0023\\u004d\\u004d/g, "M̐"); // ઁ
+    inp = inp.replace(/\\u004d\\u004d/g, "m̐"); // ઁ
+    inp = inp.replace(/\\u0023\\u004d/g, "Ṃ"); // ં
+    inp = inp.replace(/\\u004d/g, "ṃ"); // ં
+    inp = inp.replace(/\\u0023\\u0048/g, "Ḥ"); // ઃ
+    inp = inp.replace(/\\u0048/g, "ḥ"); // ઃ
+    inp = inp.replace(/\\u0028\\u002e\\u0029/g, "\\u0323"); // ઼
+    inp = inp.replace(/\\u0027/g, "'"); // ઽ
+    // NUMERALS
+    inp = inp.replace(/\\u0030/g, "0"); // 0
+    inp = inp.replace(/\\u0031/g, "1"); // 1
+    inp = inp.replace(/\\u0032/g, "2"); // 2
+    inp = inp.replace(/\\u0033/g, "3"); // 3
+    inp = inp.replace(/\\u0034/g, "4"); // 4
+    inp = inp.replace(/\\u0035/g, "5"); // 5
+    inp = inp.replace(/\\u0036/g, "6"); // 6
+    inp = inp.replace(/\\u0037/g, "7"); // 7
+    inp = inp.replace(/\\u0038/g, "8"); // 8
+    inp = inp.replace(/\\u0039/g, "9"); // 9
+    // QUOTATION MARKS
+    inp = inp.replace(/\\u003c\\u003c/g, "\u201c"); // LEFT DOUBLE
+    inp = inp.replace(/\\u003c/g, "\u2018"); // LEFT SINGLE
+    inp = inp.replace(/\\u003e\\u003e/g, "\u201d"); // RIGHT DOUBLE
+    inp = inp.replace(/\\u003e/g, "\u2019"); // RIGHT SINGLE
+    // # REMOVAL
+    inp = inp.replace(/\\u0023/g, ""); //
+    // Print Output
+    document.getElementById("TransIASTx").value = fromUni(inp);
+    // Functions for conversion
+    function toUni(input) {
+      function pad_four(input) {
+        return input.padStart(4, "0");
+      }
+      return Array.from(input)
+        .map((char) => "\\u" + pad_four(char.charCodeAt(0).toString(16)))
+        .join("");
+    }
+
+    function fromUni(text) {
+      return text.replace(/\\u[\dA-F]{4}/gi, function(match) {
+        return String.fromCharCode(parseInt(match.replace(/\\u/g, ""), 16));
+      });
+    }
+  }
+</script>
+
+<script>
+  // Draggable gutters for resizing the 2x2 output grid
+  (function () {
+    "use strict";
+    var grid = document.querySelector(".output-grid");
+    var vGutter = document.getElementById("vGutter");
+    var hGutter = document.getElementById("hGutter");
+    var GUTTER = 14;
+    var MIN_FRAC = 0.02;
+    var MAX_FRAC = 0.98;
+
+    function clamp(n, lo, hi) { return Math.min(hi, Math.max(lo, n)); }
+    function pointerX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+    function pointerY(e) { return e.touches ? e.touches[0].clientY : e.clientY; }
+
+    function startDrag(handle, axis, e) {
+      e.preventDefault();
+      var rect = grid.getBoundingClientRect();
+      handle.classList.add("dragging");
+
+      function onMove(ev) {
+        var frac;
+        if (axis === "x") {
+          frac = (pointerX(ev) - rect.left) / (rect.width - GUTTER);
+          frac = clamp(frac, MIN_FRAC, MAX_FRAC);
+          grid.style.setProperty("--col-a-frac", frac);
+          grid.style.setProperty("--col-b-frac", 1 - frac);
+        } else {
+          frac = (pointerY(ev) - rect.top) / (rect.height - GUTTER);
+          frac = clamp(frac, MIN_FRAC, MAX_FRAC);
+          grid.style.setProperty("--row-a-frac", frac);
+          grid.style.setProperty("--row-b-frac", 1 - frac);
+        }
+      }
+
+      function onUp() {
+        handle.classList.remove("dragging");
+        document.removeEventListener("pointermove", onMove);
+        document.removeEventListener("pointerup", onUp);
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+        document.removeEventListener("touchmove", onMove);
+        document.removeEventListener("touchend", onUp);
+      }
+
+      document.addEventListener("pointermove", onMove);
+      document.addEventListener("pointerup", onUp);
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+      document.addEventListener("touchmove", onMove, { passive: false });
+      document.addEventListener("touchend", onUp);
+    }
+
+    function resetAxis(axis) {
+      if (axis === "x") {
+        grid.style.setProperty("--col-a-frac", 0.5);
+        grid.style.setProperty("--col-b-frac", 0.5);
+      } else {
+        grid.style.setProperty("--row-a-frac", 0.5);
+        grid.style.setProperty("--row-b-frac", 0.5);
+      }
+    }
+
+    function wireGutter(handle, axis, step) {
+      if (!handle) return;
+      handle.addEventListener("mousedown", function (e) { startDrag(handle, axis, e); });
+      handle.addEventListener("touchstart", function (e) { startDrag(handle, axis, e); }, { passive: false });
+      handle.addEventListener("dblclick", function () { resetAxis(axis); });
+      handle.addEventListener("keydown", function (e) {
+        var current = parseFloat(getComputedStyle(grid).getPropertyValue(
+          axis === "x" ? "--col-a-frac" : "--row-a-frac"
+        )) || 0.5;
+        var forward = axis === "x" ? "ArrowRight" : "ArrowDown";
+        var backward = axis === "x" ? "ArrowLeft" : "ArrowUp";
+        if (e.key === forward || e.key === backward) {
+          e.preventDefault();
+          var next = clamp(current + (e.key === forward ? step : -step), MIN_FRAC, MAX_FRAC);
+          grid.style.setProperty(axis === "x" ? "--col-a-frac" : "--row-a-frac", next);
+          grid.style.setProperty(axis === "x" ? "--col-b-frac" : "--row-b-frac", 1 - next);
+        } else if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          resetAxis(axis);
+        }
+      });
+    }
+
+    wireGutter(vGutter, "x", 0.02);
+    wireGutter(hGutter, "y", 0.02);
+  })();
+</script>
 </body>
+
 </html>
