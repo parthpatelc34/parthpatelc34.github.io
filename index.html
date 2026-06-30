@@ -13,6 +13,21 @@
 
 <style>
   :root {
+    --ink: #f7efdd;
+    --panel: #fffcf3;
+    --panel-soft: #fbf4e2;
+    --line: rgba(42, 32, 20, 0.14);
+    --line-bright: rgba(42, 32, 20, 0.26);
+    --paper: #2c2014;
+    --paper-dim: #7d6c52;
+    --marigold: #b8791a;
+    --peacock: #1f7567;
+    --vermilion: #ab3b27;
+    --indigo: #4a59a0;
+    --on-accent: #2a1f14;
+  }
+
+  html.theme-dark {
     --ink: #15100a;
     --panel: #211810;
     --panel-soft: #2a1f15;
@@ -24,6 +39,11 @@
     --peacock: #379081;
     --vermilion: #c14b35;
     --indigo: #7686c2;
+  }
+
+  html, body { transition: background-color 0.2s ease, color 0.2s ease; }
+  .card, .text-input, .legend-btn, dialog#legend, .v-gutter::before, .h-gutter::before, .theme-switch {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   }
 
   * { box-sizing: border-box; }
@@ -43,7 +63,7 @@
     flex-direction: column;
   }
 
-  ::selection { background: var(--marigold); color: var(--ink); }
+  ::selection { background: var(--marigold); color: var(--on-accent); }
 
   .top-stripe {
     height: 4px;
@@ -111,7 +131,56 @@
   .legend-btn:hover,
   .legend-btn:focus-visible {
     background: var(--marigold);
-    color: var(--ink);
+    color: var(--on-accent);
+  }
+
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .theme-switch {
+    position: relative;
+    width: 52px;
+    height: 28px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    border: 1px solid var(--line-bright);
+    background: var(--panel);
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .theme-switch:focus-visible { outline: 2px solid var(--marigold); outline-offset: 2px; }
+
+  .theme-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    line-height: 1;
+    color: var(--paper-dim);
+    pointer-events: none;
+  }
+
+  .theme-icon.sun { left: 7px; }
+  .theme-icon.moon { right: 7px; }
+
+  .theme-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--marigold);
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  html.theme-dark .theme-knob {
+    transform: translateX(24px);
+    background: var(--indigo);
   }
 
   .legend-btn:focus-visible { outline: 2px solid var(--paper); outline-offset: 2px; }
@@ -160,7 +229,7 @@
   .text-input:focus {
     outline: none;
     border-color: var(--marigold);
-    box-shadow: 0 0 0 3px rgba(227, 168, 63, 0.18);
+    box-shadow: 0 0 0 3px rgba(184, 121, 26, 0.18);
   }
 
   .output-grid {
@@ -403,7 +472,14 @@
         <h1>Akṣara <span class="brand-mark">अ · ગુ · తె</span></h1>
         <p class="tagline">type the romanized scheme below, watch it become four scripts live</p>
       </div>
-      <button class="legend-btn" onclick="document.getElementById('legend').showModal()">Typing guide</button>
+      <div class="header-controls">
+        <button class="theme-switch" id="themeToggle" role="switch" aria-checked="false" aria-label="Toggle dark mode">
+          <span class="theme-icon sun">☀</span>
+          <span class="theme-icon moon">☾</span>
+          <span class="theme-knob"></span>
+        </button>
+        <button class="legend-btn" onclick="document.getElementById('legend').showModal()">Typing guide</button>
+      </div>
     </header>
 
     <div class="workspace">
@@ -1174,6 +1250,19 @@
 
     wireGutter(vGutter, "x", 0.02);
     wireGutter(hGutter, "y", 0.02);
+  })();
+</script>
+
+<script>
+  // Light / dark theme toggle
+  (function () {
+    "use strict";
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.addEventListener("click", function () {
+      var isDark = document.documentElement.classList.toggle("theme-dark");
+      toggle.setAttribute("aria-checked", isDark ? "true" : "false");
+    });
   })();
 </script>
 </body>
