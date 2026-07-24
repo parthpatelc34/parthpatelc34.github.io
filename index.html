@@ -1,4 +1,4 @@
-
+<!-- 
 <!DOCTYPE html>
 <html lang="en">
 
@@ -1267,4 +1267,1044 @@
 </script>
 </body>
 
+</html> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akshara Transliterator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@400;500;600&family=Anek+Gujarati:wght@400;500;600&family=Anek+Telugu:wght@400;500;600&family=Anek+Latin:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #f7f4ee;
+    --card: #ffffff;
+    --border: #d9d3c7;
+    --text: #2c2a25;
+    --muted: #7a756b;
+    --accent: #8b5e3c;
+    --accent-light: #f0e6d9;
+    --input-bg: #fffdf8;
+    --gutter: 10px;
+    --handle-color: #c4bbad;
+    --handle-hover: #8b5e3c;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 10px;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-family: 'Anek Latin', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--accent);
+  }
+
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .icon-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.3rem 0.5rem;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .icon-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ── Theme toggle switch ── */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .theme-toggle svg {
+    width: 13px;
+    height: 13px;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    flex-shrink: 0;
+    transition: stroke 0.2s, opacity 0.2s;
+  }
+  .theme-toggle .sun-icon { stroke: var(--accent); opacity: 1; }
+  .theme-toggle .moon-icon { stroke: var(--muted); opacity: 0.5; }
+  body.dark .theme-toggle .sun-icon { stroke: var(--muted); opacity: 0.5; }
+  body.dark .theme-toggle .moon-icon { stroke: var(--accent); opacity: 1; }
+
+  .toggle-track {
+    width: 32px;
+    height: 18px;
+    border-radius: 9px;
+    background: var(--border);
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  body.dark .toggle-track {
+    background: var(--accent);
+  }
+  .toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--card);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    transition: transform 0.2s;
+  }
+  body.dark .toggle-thumb {
+    transform: translateX(14px);
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .card-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 8px;
+    flex-shrink: 0;
+  }
+
+  .card-scroll {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
+
+  .card-label .script-tag {
+    font-size: 0.6rem;
+    background: var(--accent-light);
+    color: var(--accent);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 56px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    font-family: 'Anek Latin', sans-serif;
+    font-size: 1.05rem;
+    color: var(--text);
+    background: var(--input-bg);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.7;
+    user-select: text;
+  }
+
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--border); }
+
+  .output {
+    font-size: 1.35rem;
+    line-height: 2;
+    min-height: 40px;
+    word-break: break-word;
+    color: var(--text);
+    user-select: text;
+    cursor: text;
+  }
+
+  /* ── Selection highlight ── */
+  ::selection { background: rgba(139,94,60,0.18); color: inherit; }
+  body.dark ::selection { background: rgba(200,149,106,0.22); color: inherit; }
+
+  .output.devanagari { font-family: 'Anek Devanagari', sans-serif; }
+  .output.gujarati   { font-family: 'Anek Gujarati', sans-serif; }
+  .output.telugu     { font-family: 'Anek Telugu', sans-serif; }
+  .output.iast       { font-family: 'Anek Latin', sans-serif; }
+
+  .empty-state {
+    color: var(--border);
+    font-family: 'Inter', sans-serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    user-select: none;
+  }
+
+  .hint {
+    margin-top: 0.6rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .hint code {
+    background: var(--accent-light);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-family: 'SF Mono', 'Consolas', monospace;
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.3rem 0.55rem;
+    font-size: 0.65rem;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    z-index: 2;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Resizable output grid ── */
+  .output-grid {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .output-grid .card {
+    position: absolute;
+    overflow: hidden;
+    min-width: 0;
+    min-height: 0;
+    border: none;
+    outline: none;
+    cursor: pointer;
+  }
+  .output-grid .card:focus {
+    box-shadow: inset 0 0 0 1.5px var(--accent);
+  }
+
+  /* Gutter handles — wide invisible hit area, narrow visible pip */
+  .handle {
+    position: absolute;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .handle-v {
+    width: 24px;
+    margin-left: -7px;
+    cursor: col-resize;
+    top: 0;
+    bottom: 0;
+  }
+
+  .handle-h {
+    height: 24px;
+    margin-top: -7px;
+    cursor: row-resize;
+    left: 0;
+    right: 0;
+  }
+
+  .handle-pip {
+    background: var(--handle-color);
+    border-radius: 2px;
+    transition: background 0.15s, transform 0.15s;
+  }
+
+  .handle-v .handle-pip {
+    width: 3px;
+    height: 24px;
+  }
+
+  .handle-h .handle-pip {
+    height: 3px;
+    width: 24px;
+  }
+
+  /* ── Dark mode ── */
+  body.dark {
+    --bg: #1a1917;
+    --card: #26251f;
+    --border: #3d3a32;
+    --text: #e3dfd6;
+    --muted: #9a9488;
+    --accent: #c8956a;
+    --accent-light: #362d23;
+    --input-bg: #201f1a;
+    --handle-color: #4a4639;
+    --handle-hover: #c8956a;
+  }
+
+  /* ── Scheme overlay ── */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0,0,0,0.45);
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+  }
+  .overlay.open { display: flex; }
+
+  .overlay-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    max-width: 640px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    color: var(--text);
+  }
+
+  .overlay-panel h2 {
+    font-family: 'Anek Latin', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .overlay-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 0.2rem;
+  }
+  .overlay-close:hover { color: var(--accent); }
+
+  .scheme-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+  }
+  .scheme-table th {
+    text-align: left;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.65rem;
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .scheme-table td {
+    padding: 0.35rem 0.6rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .scheme-table td:first-child {
+    font-family: 'SF Mono', 'Consolas', monospace;
+    font-weight: 500;
+    color: var(--accent);
+  }
+  .scheme-table tr:last-child td { border-bottom: none; }
+  .scheme-section {
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-top: 0.8rem;
+  }
+
+  .handle:hover .handle-pip,
+  .handle.active .handle-pip {
+    background: var(--handle-hover);
+    transform: scaleX(1.4) scaleY(1.4);
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 10px; }
+    .output { font-size: 1.15rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Akshara Transliterator</h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="scheme-btn" title="Typing guide">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      Typing guide
+    </button>
+    <div class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+      <svg class="sun-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </div>
+  </div>
+</header>
+
+<!-- Scheme overlay -->
+<div class="overlay" id="scheme-overlay">
+  <div class="overlay-panel">
+    <button class="overlay-close" id="scheme-close">&#x2715;</button>
+    <h2>Romanized Typing Guide</h2>
+    <p style="font-size:0.78rem;color:var(--muted);margin-bottom:1rem;line-height:1.5">Lowercase and capitals are different sounds — capitals usually mean "long" or "retroflex." A leading <code style="background:var(--accent-light);padding:0.1rem 0.3rem;border-radius:3px;font-size:0.72rem">#</code> forces the next letter to render capitalized in IAST only.</p>
+    <table class="scheme-table">
+      <tr><th>Input</th><th>IAST</th><th>Devanāgarī</th><th>Note</th></tr>
+      <tr><td colspan="4" class="scheme-section">Vowels</td></tr>
+      <tr><td>a</td><td>a</td><td>अ</td><td>short</td></tr>
+      <tr><td>A</td><td>ā</td><td>आ</td><td>long</td></tr>
+      <tr><td>i</td><td>i</td><td>इ</td><td>short</td></tr>
+      <tr><td>I</td><td>ī</td><td>ई</td><td>long</td></tr>
+      <tr><td>u</td><td>u</td><td>उ</td><td>short</td></tr>
+      <tr><td>U</td><td>ū</td><td>ऊ</td><td>long</td></tr>
+      <tr><td>e</td><td>e</td><td>ए</td><td></td></tr>
+      <tr><td>o</td><td>o</td><td>ओ</td><td></td></tr>
+      <tr><td>ai</td><td>ai</td><td>ऐ</td><td></td></tr>
+      <tr><td>au</td><td>au</td><td>औ</td><td></td></tr>
+      <tr><td>-r</td><td>ṛ</td><td>ऋ</td><td>vocalic r</td></tr>
+      <tr><td>-R</td><td>ṝ</td><td>ॠ</td><td>long vocalic r</td></tr>
+      <tr><td>-l</td><td>ḷ</td><td>ऌ</td><td>vocalic l</td></tr>
+      <tr><td>-L</td><td>ḹ</td><td>ॡ</td><td>long vocalic l</td></tr>
+      <tr><td>(E)</td><td>ĕ</td><td>ऍ</td><td>short e</td></tr>
+      <tr><td>(O)</td><td>ŏ</td><td>ऑ</td><td>short o</td></tr>
+      <tr><td>(OM)</td><td>oṃ</td><td>ॐ</td><td></td></tr>
+      <tr><td colspan="4" class="scheme-section">Gutturals</td></tr>
+      <tr><td>k</td><td>k</td><td>क</td><td></td></tr>
+      <tr><td>kh</td><td>kh</td><td>ख</td><td>aspirated</td></tr>
+      <tr><td>g</td><td>g</td><td>ग</td><td></td></tr>
+      <tr><td>gh</td><td>gh</td><td>घ</td><td>aspirated</td></tr>
+      <tr><td>G</td><td>ṅ</td><td>ङ</td><td>nasal</td></tr>
+      <tr><td colspan="4" class="scheme-section">Palatals</td></tr>
+      <tr><td>ch</td><td>c</td><td>च</td><td></td></tr>
+      <tr><td>Ch</td><td>ch</td><td>छ</td><td>aspirated</td></tr>
+      <tr><td>j</td><td>j</td><td>ज</td><td></td></tr>
+      <tr><td>jh</td><td>jh</td><td>झ</td><td>aspirated</td></tr>
+      <tr><td>J</td><td>ñ</td><td>ञ</td><td>nasal</td></tr>
+      <tr><td colspan="4" class="scheme-section">Retroflexes</td></tr>
+      <tr><td>T</td><td>ṭ</td><td>ट</td><td></td></tr>
+      <tr><td>Th</td><td>ṭh</td><td>ठ</td><td>aspirated</td></tr>
+      <tr><td>D</td><td>ḍ</td><td>ड</td><td></td></tr>
+      <tr><td>Dh</td><td>ḍh</td><td>ढ</td><td>aspirated</td></tr>
+      <tr><td>N</td><td>ṇ</td><td>ण</td><td>nasal</td></tr>
+      <tr><td colspan="4" class="scheme-section">Dentals</td></tr>
+      <tr><td>t</td><td>t</td><td>त</td><td></td></tr>
+      <tr><td>th</td><td>th</td><td>थ</td><td>aspirated</td></tr>
+      <tr><td>d</td><td>d</td><td>द</td><td></td></tr>
+      <tr><td>dh</td><td>dh</td><td>ध</td><td>aspirated</td></tr>
+      <tr><td>n</td><td>n</td><td>न</td><td>nasal</td></tr>
+      <tr><td colspan="4" class="scheme-section">Labials</td></tr>
+      <tr><td>p</td><td>p</td><td>प</td><td></td></tr>
+      <tr><td>ph</td><td>ph</td><td>फ</td><td>aspirated</td></tr>
+      <tr><td>b</td><td>b</td><td>ब</td><td></td></tr>
+      <tr><td>bh</td><td>bh</td><td>भ</td><td>aspirated</td></tr>
+      <tr><td>m</td><td>m</td><td>म</td><td>nasal</td></tr>
+      <tr><td colspan="4" class="scheme-section">Semivowels &amp; Sibilants</td></tr>
+      <tr><td>y</td><td>y</td><td>य</td><td></td></tr>
+      <tr><td>r</td><td>r</td><td>र</td><td></td></tr>
+      <tr><td>l</td><td>l</td><td>ल</td><td></td></tr>
+      <tr><td>v</td><td>v</td><td>व</td><td></td></tr>
+      <tr><td>L</td><td>ḻ</td><td>ळ</td><td>retroflex l</td></tr>
+      <tr><td>sh</td><td>ś</td><td>श</td><td>palatal</td></tr>
+      <tr><td>Sh</td><td>ṣ</td><td>ष</td><td>retroflex</td></tr>
+      <tr><td>s</td><td>s</td><td>स</td><td>dental</td></tr>
+      <tr><td>h</td><td>h</td><td>ह</td><td></td></tr>
+      <tr><td colspan="4" class="scheme-section">Nukta (Perso-Arabic)</td></tr>
+      <tr><td>k(.)</td><td>q</td><td>क़</td><td></td></tr>
+      <tr><td>kh(.)</td><td>x</td><td>ख़</td><td></td></tr>
+      <tr><td>g(.)</td><td>ġ</td><td>ग़</td><td></td></tr>
+      <tr><td>j(.)</td><td>z</td><td>ज़</td><td></td></tr>
+      <tr><td>jh(.)</td><td>ž</td><td>झ़</td><td></td></tr>
+      <tr><td>D(.)</td><td>ṛ</td><td>ड़</td><td></td></tr>
+      <tr><td>Dh(.)</td><td>ṛh</td><td>ढ़</td><td></td></tr>
+      <tr><td>ph(.)</td><td>f</td><td>फ़</td><td></td></tr>
+      <tr><td colspan="4" class="scheme-section">Marks &amp; Punctuation</td></tr>
+      <tr><td>M</td><td>ṃ</td><td>ं</td><td>anusvāra</td></tr>
+      <tr><td>MM</td><td>m̐</td><td>ँ</td><td>candrabindu</td></tr>
+      <tr><td>H</td><td>ḥ</td><td>ः</td><td>visarga</td></tr>
+      <tr><td>'</td><td>'</td><td>ऽ</td><td>avagraha</td></tr>
+      <tr><td>| &nbsp; ||</td><td>| &nbsp; ‖</td><td>। &nbsp; ॥</td><td>daṇḍa</td></tr>
+      <tr><td>0–9</td><td>0–9</td><td>०–९</td><td>native digits</td></tr>
+      <tr><td>&lt;&lt; &nbsp; &gt;&gt;</td><td>" &nbsp; "</td><td>" &nbsp; "</td><td>double quotes</td></tr>
+      <tr><td>&lt; &nbsp; &gt;</td><td>' &nbsp; '</td><td>' &nbsp; '</td><td>single quotes</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="container">
+  <div class="card" style="padding:10px">
+    <div class="card-label" style="margin-bottom:8px">Input <span class="script-tag">Romanized</span></div>
+    <textarea id="hk-input" placeholder="e.g. akSharaM ahaM puruShottama dAso'smi" spellcheck="false" style="margin-bottom:0;display:block"></textarea>
+  </div>
+
+  <div class="output-grid" id="output-grid">
+    <!-- 4 cards positioned absolutely by JS -->
+    <div class="card" id="cell-tl" tabindex="0">
+      <div class="card-header">
+        <div class="card-label">Devanāgarī <span class="script-tag">देवनागरी</span></div>
+        <button class="copy-btn" onclick="copyOutput('out-deva')">Copy</button>
+      </div>
+      <div class="card-scroll"><div class="output devanagari" id="out-deva"><span class="empty-state">output appears here</span></div></div>
+    </div>
+    <div class="card" id="cell-tr" tabindex="0">
+      <div class="card-header">
+        <div class="card-label">Gujarātī <span class="script-tag">ગુજરાતી</span></div>
+        <button class="copy-btn" onclick="copyOutput('out-gujr')">Copy</button>
+      </div>
+      <div class="card-scroll"><div class="output gujarati" id="out-gujr"><span class="empty-state">output appears here</span></div></div>
+    </div>
+    <div class="card" id="cell-bl" tabindex="0">
+      <div class="card-header">
+        <div class="card-label">Telugu <span class="script-tag">తెలుగు</span></div>
+        <button class="copy-btn" onclick="copyOutput('out-telu')">Copy</button>
+      </div>
+      <div class="card-scroll"><div class="output telugu" id="out-telu"><span class="empty-state">output appears here</span></div></div>
+    </div>
+    <div class="card" id="cell-br" tabindex="0">
+      <div class="card-header">
+        <div class="card-label">IAST <span class="script-tag">Romanized</span></div>
+        <button class="copy-btn" onclick="copyOutput('out-iast')">Copy</button>
+      </div>
+      <div class="card-scroll"><div class="output iast" id="out-iast"><span class="empty-state">output appears here</span></div></div>
+    </div>
+
+    <!-- Draggable handles -->
+    <div class="handle handle-v" id="handle-v"><div class="handle-pip"></div></div>
+    <div class="handle handle-h" id="handle-h"><div class="handle-pip"></div></div>
+  </div>
+</div>
+
+<script>
+// ── Resizable Grid ──
+const grid = document.getElementById('output-grid');
+const cellTL = document.getElementById('cell-tl');
+const cellTR = document.getElementById('cell-tr');
+const cellBL = document.getElementById('cell-bl');
+const cellBR = document.getElementById('cell-br');
+const handleV = document.getElementById('handle-v');
+const handleH = document.getElementById('handle-h');
+
+const GAP = 10; // gutter size in px
+let splitX = 0.5; // fraction 0–1
+let splitY = 0.5;
+
+function layoutGrid() {
+  const W = grid.clientWidth;
+  const H = grid.clientHeight;
+
+  const colL = Math.round(splitX * (W - GAP));
+  const colR = W - GAP - colL;
+  const rowT = Math.round(splitY * (H - GAP));
+  const rowB = H - GAP - rowT;
+
+  const MAX_R = 10;
+
+  function applyCell(el, x, y, w, h) {
+    const cw = Math.max(0, w);
+    const ch = Math.max(0, h);
+    const smallest = Math.min(cw, ch);
+    const r = Math.min(MAX_R, cw / 2, ch / 2);
+    // Fade border and background below 60px
+    const fadeStart = 60;
+    const borderOpacity = Math.min(1, Math.max(0, smallest / fadeStart));
+    const hidden = cw < 2 || ch < 2;
+    el.style.cssText = [
+      `left:${x}px`, `top:${y}px`,
+      `width:${cw}px`, `height:${ch}px`,
+      `border-radius:${r}px`,
+      borderOpacity < 0.01 ? 'border:none' : `border:1px solid var(--border)`,
+      `background:var(--card)`,
+      `overflow:hidden`, `min-width:0`, `min-height:0`,
+      `display:flex`, `flex-direction:column`,
+      `padding:${Math.max(0, Math.min(10, smallest * 0.15))}px`,
+      `opacity:${hidden ? 0 : borderOpacity}`,
+      hidden ? 'pointer-events:none' : '',
+    ].join(';');
+  }
+
+  applyCell(cellTL, 0, 0, colL, rowT);
+  applyCell(cellTR, colL + GAP, 0, colR, rowT);
+  applyCell(cellBL, 0, rowT + GAP, colL, rowB);
+  applyCell(cellBR, colL + GAP, rowT + GAP, colR, rowB);
+
+  handleV.style.left = `${colL}px`;
+  handleH.style.top = `${rowT}px`;
+
+  scaleCard(cellTL, colL, rowT);
+  scaleCard(cellTR, colR, rowT);
+  scaleCard(cellBL, colL, rowB);
+  scaleCard(cellBR, colR, rowB);
+}
+
+function scaleCard(card, w, h) {
+  const ref = Math.sqrt(Math.max(0, w) * Math.max(0, h));
+  const scale = Math.max(0, Math.min(1.0, ref / 288));
+
+  const header = card.querySelector('.card-header');
+  const label = card.querySelector('.card-label');
+  const tag = card.querySelector('.script-tag');
+  const output = card.querySelector('.output');
+  const btn = card.querySelector('.copy-btn');
+
+  const smallest = Math.min(w, h);
+  const fadeStart = 120;
+  const fadeEnd = 30;
+  const contentOpacity = Math.max(0, Math.min(1, (smallest - fadeEnd) / (fadeStart - fadeEnd)));
+
+  if (header) {
+    header.style.paddingBottom = Math.max(2, 8 * scale) + 'px';
+    header.style.opacity = contentOpacity;
+  }
+  if (label) {
+    label.style.fontSize = Math.max(6, 11 * scale) + 'px';
+    label.style.whiteSpace = scale < 0.6 ? 'nowrap' : 'normal';
+  }
+  if (tag) {
+    tag.style.fontSize = Math.max(5, 9.6 * scale) + 'px';
+    tag.style.padding = `${Math.max(1, 2.4 * scale)}px ${Math.max(2, 7.2 * scale)}px`;
+  }
+  if (output) {
+    output.style.fontSize = Math.max(8, 16 * scale) + 'px';
+    output.style.lineHeight = String(Math.max(1.3, Math.min(2.0, 1.5 + scale * 0.5)));
+    output.style.opacity = contentOpacity;
+  }
+  if (btn) {
+    btn.style.fontSize = Math.max(6, 10.4 * scale) + 'px';
+    btn.style.padding = `${Math.max(1, 4.8 * scale)}px ${Math.max(2, 8.8 * scale)}px`;
+    btn.style.pointerEvents = contentOpacity < 0.1 ? 'none' : 'auto';
+  }
+}
+
+layoutGrid();
+new ResizeObserver(layoutGrid).observe(grid);
+
+// Drag logic
+let dragging = null;
+
+function startDrag(which, e) {
+  e.preventDefault();
+  dragging = which;
+  which.classList.add('active');
+  document.body.style.cursor = which === handleV ? 'col-resize' : 'row-resize';
+}
+
+function onMove(e) {
+  if (!dragging) return;
+  const rect = grid.getBoundingClientRect();
+  if (dragging === handleV) {
+    splitX = Math.min(1.0, Math.max(0.0, (e.clientX - rect.left) / rect.width));
+  } else {
+    splitY = Math.min(1.0, Math.max(0.0, (e.clientY - rect.top) / rect.height));
+  }
+  layoutGrid();
+}
+
+function endDrag() {
+  if (dragging) dragging.classList.remove('active');
+  dragging = null;
+  document.body.style.cursor = '';
+}
+
+handleV.addEventListener('mousedown', e => startDrag(handleV, e));
+handleH.addEventListener('mousedown', e => startDrag(handleH, e));
+document.addEventListener('mousemove', onMove);
+document.addEventListener('mouseup', endDrag);
+
+// Double-click to snap back to default
+function animateTo(prop, target, duration = 300) {
+  const start = prop === 'x' ? splitX : splitY;
+  const t0 = performance.now();
+  function tick(now) {
+    const p = Math.min(1, (now - t0) / duration);
+    const ease = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+    if (prop === 'x') splitX = start + (target - start) * ease;
+    else splitY = start + (target - start) * ease;
+    layoutGrid();
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+handleV.addEventListener('dblclick', e => { e.preventDefault(); animateTo('x', 0.5); });
+handleH.addEventListener('dblclick', e => { e.preventDefault(); animateTo('y', 0.5); });
+
+// Touch support
+handleV.addEventListener('touchstart', e => { startDrag(handleV, e); }, {passive:false});
+handleH.addEventListener('touchstart', e => { startDrag(handleH, e); }, {passive:false});
+document.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  const t = e.touches[0];
+  onMove(t);
+}, {passive:false});
+document.addEventListener('touchend', endDrag);
+
+// ── Transliteration Engine ──
+// Token format: [input, type, devanagari_codepoint(s), iast, nukta?]
+// Types: 'v'=vowel, 'c'=consonant, 'cn'=consonant+nukta, 's'=special, 'sym'=symbol, 'p'=punctuation, 'cap'=# prefix
+
+const VOWELS = [
+  ['(OM)','sym', 0x0950, 'oṃ'],
+  ['(E)', 'v', 0x090D, 'ĕ'],
+  ['(O)', 'v', 0x0911, 'ŏ'],
+  ['-R',  'v', 0x0960, 'ṝ'],
+  ['-L',  'v', 0x0961, 'ḹ'],
+  ['-r',  'v', 0x090B, 'ṛ'],
+  ['-l',  'v', 0x090C, 'ḷ'],
+  ['ai',  'v', 0x0910, 'ai'],
+  ['au',  'v', 0x0914, 'au'],
+  ['A',   'v', 0x0906, 'ā'],
+  ['I',   'v', 0x0908, 'ī'],
+  ['U',   'v', 0x090A, 'ū'],
+  ['e',   'v', 0x090F, 'e'],
+  ['o',   'v', 0x0913, 'o'],
+  ['a',   'v', 0x0905, 'a'],
+  ['i',   'v', 0x0907, 'i'],
+  ['u',   'v', 0x0909, 'u'],
+];
+
+const CONSONANTS = [
+  // Nukta consonants (longest first)
+  ['kh(.)','cn', 0x0916, 'x'],
+  ['jh(.)','cn', 0x091D, 'ž'],
+  ['Dh(.)','cn', 0x0922, 'ṛh'],
+  ['ph(.)','cn', 0x092B, 'f'],
+  ['k(.)', 'cn', 0x0915, 'q'],
+  ['g(.)', 'cn', 0x0917, 'ġ'],
+  ['j(.)', 'cn', 0x091C, 'z'],
+  ['D(.)', 'cn', 0x0921, 'ṛ'],
+  // Regular aspirated (2-char)
+  ['kh','c', 0x0916, 'kh'], ['gh','c', 0x0918, 'gh'],
+  ['Ch','c', 0x091B, 'ch'], ['ch','c', 0x091A, 'c'],
+  ['jh','c', 0x091D, 'jh'],
+  ['Th','c', 0x0920, 'ṭh'], ['Dh','c', 0x0922, 'ḍh'],
+  ['th','c', 0x0925, 'th'], ['dh','c', 0x0927, 'dh'],
+  ['ph','c', 0x092B, 'ph'], ['bh','c', 0x092D, 'bh'],
+  ['sh','c', 0x0936, 'ś'],  ['Sh','c', 0x0937, 'ṣ'],
+  // Single-char consonants
+  ['G', 'c', 0x0919, 'ṅ'],  ['J', 'c', 0x091E, 'ñ'],
+  ['T', 'c', 0x091F, 'ṭ'],  ['D', 'c', 0x0921, 'ḍ'],
+  ['N', 'c', 0x0923, 'ṇ'],  ['L', 'c', 0x0933, 'ḻ'],
+  ['k', 'c', 0x0915, 'k'],  ['g', 'c', 0x0917, 'g'],
+  ['j', 'c', 0x091C, 'j'],  ['t', 'c', 0x0924, 't'],
+  ['d', 'c', 0x0926, 'd'],  ['n', 'c', 0x0928, 'n'],
+  ['p', 'c', 0x092A, 'p'],  ['b', 'c', 0x092C, 'b'],
+  ['m', 'c', 0x092E, 'm'],  ['y', 'c', 0x092F, 'y'],
+  ['r', 'c', 0x0930, 'r'],  ['l', 'c', 0x0932, 'l'],
+  ['v', 'c', 0x0935, 'v'],  ['s', 'c', 0x0938, 's'],
+  ['h', 'c', 0x0939, 'h'],
+];
+
+const SPECIALS = [
+  ['MMM','nas', 0x0902, '\u0303'], // nasalization → combining tilde in IAST, anusvara in Devanagari
+  ['MM', 's',   0x0901, 'm\u0310'],// candrabindu → m̐ in IAST
+  ['M',  's',   0x0902, 'ṃ'],     // anusvara
+  ['H',  's',  0x0903, 'ḥ'],     // visarga
+  ["'",  's', 0x093D, "'"],    // avagraha
+  ['||', 'p', 0x0965, '‖'],   // double danda
+  ['|',  'p', 0x0964, '।'],   // danda
+  ['<<', 'p', 0, '\u201C'],   // left double quote
+  ['>>', 'p', 0, '\u201D'],   // right double quote
+  ['<',  'p', 0, '\u2018'],   // left single quote
+  ['>',  'p', 0, '\u2019'],   // right single quote
+  ['#',  'cap', 0, ''],       // IAST capitalize next
+];
+
+const ALL_TOKENS = [...VOWELS, ...CONSONANTS, ...SPECIALS]
+  .sort((a, b) => b[0].length - a[0].length);
+
+const DEP_VOWEL_SIGN = {
+  0x0905: null,   // a — inherent
+  0x0906: 0x093E, // ā
+  0x0907: 0x093F, // i
+  0x0908: 0x0940, // ī
+  0x0909: 0x0941, // u
+  0x090A: 0x0942, // ū
+  0x090B: 0x0943, // ṛ
+  0x0960: 0x0944, // ṝ
+  0x090C: 0x0962, // ḷ
+  0x0961: 0x0963, // ḹ
+  0x090D: 0x0945, // ĕ (candra e)
+  0x090F: 0x0947, // e
+  0x0910: 0x0948, // ai
+  0x0911: 0x0949, // ŏ (candra o)
+  0x0913: 0x094B, // o
+  0x0914: 0x094C, // au
+};
+
+const VIRAMA = 0x094D;
+const NUKTA  = 0x093C;
+const DEVA_DIGIT_BASE = 0x0966;
+
+function tokenize(src) {
+  const tokens = [];
+  let i = 0;
+  while (i < src.length) {
+    // Digits → native
+    if (src[i] >= '0' && src[i] <= '9') {
+      tokens.push([src[i], 'd', parseInt(src[i]), src[i]]);
+      i++; continue;
+    }
+    let matched = false;
+    for (const tok of ALL_TOKENS) {
+      if (src.substring(i, i + tok[0].length) === tok[0]) {
+        tokens.push(tok);
+        i += tok[0].length;
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
+      tokens.push([src[i], 'o', src.charCodeAt(i), src[i]]);
+      i++;
+    }
+  }
+  return tokens;
+}
+
+function renderIndic(tokens, offset) {
+  let out = '';
+  for (let i = 0; i < tokens.length; i++) {
+    const [, type, cp] = tokens[i];
+
+    if (type === 'c' || type === 'cn') {
+      out += String.fromCodePoint(cp + offset);
+      if (type === 'cn') out += String.fromCodePoint(NUKTA + offset);
+      if (i + 1 < tokens.length && tokens[i + 1][1] === 'v') {
+        const sign = DEP_VOWEL_SIGN[tokens[i + 1][2]];
+        if (sign !== null && sign !== undefined) out += String.fromCodePoint(sign + offset);
+        i++;
+      } else {
+        out += String.fromCodePoint(VIRAMA + offset);
+      }
+    } else if (type === 'v') {
+      out += String.fromCodePoint(cp + offset);
+    } else if (type === 'nas') {
+      // MMM nasalization: renders as anusvara in Indic scripts
+      out += String.fromCodePoint(cp + offset);
+    } else if (type === 's') {
+      out += String.fromCodePoint(cp + offset);
+    } else if (type === 'sym') {
+      out += String.fromCodePoint(cp + offset);
+    } else if (type === 'd') {
+      out += String.fromCodePoint(DEVA_DIGIT_BASE + offset + cp);
+    } else if (type === 'p') {
+      if (cp > 0) {
+        out += String.fromCodePoint(cp + offset);
+      } else {
+        out += tokens[i][3];
+      }
+    } else if (type === 'cap') {
+      // skip in Indic
+    } else {
+      out += String.fromCodePoint(cp);
+    }
+  }
+  return out;
+}
+
+function renderIAST(tokens) {
+  let out = '';
+  let capitalize = false;
+  for (let i = 0; i < tokens.length; i++) {
+    const [, type, cp, iast] = tokens[i];
+    if (type === 'cap') {
+      capitalize = true;
+      continue;
+    }
+    if (type === 'nas') {
+      // MMM nasalization: add combining tilde to preceding character
+      out += '\u0303';
+      continue;
+    }
+    if (type === 'd') {
+      out += iast;
+    } else {
+      let s = iast;
+      if (capitalize && s.length > 0) {
+        s = s[0].toUpperCase() + s.slice(1);
+        capitalize = false;
+      }
+      out += s;
+    }
+  }
+  return out;
+}
+
+const OFFSET = { deva: 0, gujr: 0x0180, telu: 0x0300 };
+
+const input = document.getElementById('hk-input');
+const outDeva = document.getElementById('out-deva');
+const outGujr = document.getElementById('out-gujr');
+const outTelu = document.getElementById('out-telu');
+const outIast = document.getElementById('out-iast');
+const empty = '<span class="empty-state">output appears here</span>';
+
+function update() {
+  const src = input.value;
+  if (!src.trim()) {
+    outDeva.innerHTML = outGujr.innerHTML = outTelu.innerHTML = outIast.innerHTML = empty;
+    return;
+  }
+  const tokens = tokenize(src);
+  outDeva.textContent = renderIndic(tokens, OFFSET.deva);
+  outGujr.textContent = renderIndic(tokens, OFFSET.gujr);
+  outTelu.textContent = renderIndic(tokens, OFFSET.telu);
+  outIast.textContent = renderIAST(tokens);
+}
+
+input.addEventListener('input', update);
+
+function copyOutput(id) {
+  const el = document.getElementById(id);
+  const text = el.textContent;
+  if (!text || el.querySelector('.empty-state')) return;
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+  const btn = el.parentElement.querySelector('.copy-btn');
+  btn.textContent = 'Copied';
+  setTimeout(() => btn.textContent = 'Copy', 1200);
+}
+
+input.value = 'svAminArAyaNaH sAkShAt akSharapuruShottama';
+update();
+
+// ── Select all in focused output card ──
+document.querySelectorAll('.output-grid .card').forEach(card => {
+  card.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+      e.preventDefault();
+      const outputEl = card.querySelector('.output');
+      if (!outputEl) return;
+      const range = document.createRange();
+      range.selectNodeContents(outputEl);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  });
+});
+
+// ── Dark mode toggle ──
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  layoutGrid();
+});
+
+// ── Scheme overlay ──
+const schemeOverlay = document.getElementById('scheme-overlay');
+document.getElementById('scheme-btn').addEventListener('click', () => {
+  schemeOverlay.classList.add('open');
+});
+document.getElementById('scheme-close').addEventListener('click', () => {
+  schemeOverlay.classList.remove('open');
+});
+schemeOverlay.addEventListener('click', (e) => {
+  if (e.target === schemeOverlay) schemeOverlay.classList.remove('open');
+});
+</script>
+</body>
 </html>
+
